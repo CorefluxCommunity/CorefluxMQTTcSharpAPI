@@ -1,0 +1,5 @@
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMqttUnityAPI\obj\Debug\CorefluxMqttcSharpAPI.csproj.CoreCompileInputs.cache
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMqttUnityAPI\bin\Debug\CorefluxMQTTcSharpAPI.dll
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMqttUnityAPI\bin\Debug\CorefluxMQTTcSharpAPI.pdb
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMqttUnityAPI\obj\Debug\CorefluxMQTTcSharpAPI.dll
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMqttUnityAPI\obj\Debug\CorefluxMQTTcSharpAPI.pdb
