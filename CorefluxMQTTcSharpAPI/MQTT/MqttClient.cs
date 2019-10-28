@@ -24,19 +24,12 @@ using Coreflux.API.cSharp.Networking.MQTT.Exceptions;
 using Coreflux.API.cSharp.Networking.MQTT.Messages;
 using Coreflux.API.cSharp.Networking.MQTT.Utility;
 // if .Net Micro Framework
-#if (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3)
-using Microsoft.SPOT;
-#if SSL
-using Microsoft.SPOT.Net.Security;
-#endif
-// else other frameworks (.Net, .Net Compact, Mono, Windows Phone) 
-#else
+
 using System.Collections.Generic;
-#if (SSL && !WINDOWS_PHONE)
+
 using System.Security.Authentication;
 using System.Net.Security;
-#endif
-#endif
+
 
 using System.Security.Cryptography.X509Certificates;
 using System.Collections;
@@ -52,17 +45,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
     /// </summary>
     public class MQTTClient
     {
-#if BROKER
-        #region Constants ...
 
-        // thread names
-        private const string RECEIVE_THREAD_NAME = "ReceiveThread";
-        private const string RECEIVE_EVENT_THREAD_NAME = "ReceiveEventThread";
-        private const string PROCESS_INFLIGHT_THREAD_NAME = "ProcessInflightThread";
-        private const string KEEP_ALIVE_THREAD = "KeepAliveThread";
-
-        #endregion
-#endif
 
         /// <summary>
         /// Delagate that defines event handler for PUBLISH message received
@@ -84,22 +67,6 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// </summary>
         public delegate void MQTTMsgUnsubscribedEventHandler(object sender, MQTTMsgUnsubscribedEventArgs e);
 
-#if BROKER
-        /// <summary>
-        /// Delagate that defines event handler for SUBSCRIBE message received
-        /// </summary>
-        public delegate void MQTTMsgSubscribeEventHandler(object sender, MQTTMsgSubscribeEventArgs e);
-
-        /// <summary>
-        /// Delagate that defines event handler for UNSUBSCRIBE message received
-        /// </summary>
-        public delegate void MQTTMsgUnsubscribeEventHandler(object sender, MQTTMsgUnsubscribeEventArgs e);
-
-        /// <summary>
-        /// Delagate that defines event handler for CONNECT message received
-        /// </summary>
-        public delegate void MQTTMsgConnectEventHandler(object sender, MQTTMsgConnectEventArgs e);
-#endif
 
         /// <summary>
         /// Delegate that defines event handler for client disconnection (DISCONNECT message or not)
@@ -155,14 +122,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         public event MQTTMsgSubscribedEventHandler MQTTMsgSubscribed;
         // event for unsubscribed topic
         public event MQTTMsgUnsubscribedEventHandler MQTTMsgUnsubscribed;
-#if BROKER
-        // event for SUBSCRIBE message received
-        public event MQTTMsgSubscribeEventHandler MQTTMsgSubscribeReceived;
-        // event for USUBSCRIBE message received
-        public event MQTTMsgUnsubscribeEventHandler MQTTMsgUnsubscribeReceived;
-        // event for CONNECT message received
-        public event MQTTMsgConnectEventHandler MQTTMsgConnected;
-#endif
+
         // event for client disconnection (DISCONNECT message or not)
         public event MQTTMsgDisconnectEventHandler MQTTMsgDisconnected;
         
@@ -271,35 +231,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 throw new ApplicationException("No address found for the broker");
         }
 
-#if BROKER
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="socket">Raw socket for communication</param>
-        public MQTTClient(Socket socket)
-        {
-            this.channel = new MQTTNetworkChannel(socket);
 
-            // reference to MQTT settings
-            this.settings = MQTTSettings.Instance;
-
-            // client not connected yet (CONNACK not send from client), some default values
-            this.IsConnected = false;
-            this.ClientId = null;
-            this.CleanSession = true;
-
-            this.keepAliveEvent = new AutoResetEvent(false);
-
-            // queue for handling inflight messages (publishing and acknowledge)
-            this.inflightWaitHandle = new AutoResetEvent(false);
-            this.inflightQueue = new Queue();
-
-            // queue for received message
-            this.receiveEventWaitHandle = new AutoResetEvent(false);
-            this.receiveQueue = new Queue();
-            this.internalQueue = new Queue();
-        }
-#endif
 
         /// <summary>
         /// MQTTClient initialization
@@ -311,14 +243,11 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="caCert">CA certificate for secure connection</param>
         private void Init(string brokerHostName, IPAddress brokerIpAddress, int brokerPort, bool secure, X509Certificate caCert)
         {
-#if SSL
-            // check security parameters
-            if ((secure) && (caCert == null))
-                throw new ArgumentException("Secure requested but CA certificate is null !");
-#else
+
+
             if (secure)
                 throw new ArgumentException("Library compiled without SSL support");
-#endif
+
 
             this.brokerHostName = brokerHostName;
             // if broker hostname is null, set ip address
@@ -329,13 +258,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             this.brokerPort = brokerPort;
             this.secure = secure;
 
-#if SSL
-            // if secure, load CA certificate
-            if (this.secure)
-            {
-                this.caCert = caCert;
-            }
-#endif
+
 
             // reference to MQTT settings
             this.settings = MQTTSettings.Instance;
@@ -434,12 +357,10 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
             try
             {
-                // create network channel and connect to broker
-#if WINDOWS_PHONE
-                this.channel = new WPMQTTNetworkChannel(this.brokerHostName, this.brokerIpAddress, this.brokerPort, this.secure, this.caCert);
-#else
+
+
                 this.channel = new MQTTNetworkChannel(this.brokerHostName, this.brokerIpAddress, this.brokerPort, this.secure, this.caCert);
-#endif
+
                 this.channel.Connect();
             }
             catch (Exception ex)
@@ -496,39 +417,13 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             this.Close();
         }
 
-#if BROKER
-        /// <summary>
-        /// Open client communication
-        /// </summary>
-        public void Open()
-        {
-            this.isRunning = true;
-
-            // start thread for receiving messages from client
-            this.receiveThread = new Thread(this.ReceiveThread);
-            this.receiveThread.Name = RECEIVE_THREAD_NAME;
-            this.receiveThread.Start();
-
-            // start thread for raising received message event from client
-            this.receiveEventThread = new Thread(this.ReceiveEventThread);
-            this.receiveEventThread.Name = RECEIVE_EVENT_THREAD_NAME;
-            this.receiveEventThread.Start();
-
-            // start thread for handling inflight messages queue to client asynchronously (publish and acknowledge)
-            this.processInflightThread = new Thread(this.ProcessInflightThread);
-            this.processInflightThread.Name = PROCESS_INFLIGHT_THREAD_NAME;
-            this.processInflightThread.Start();   
-        }
-#endif
 
         /// <summary>
         /// Close client
         /// </summary>
-#if BROKER
-        public void Close()
-#else
+
         private void Close()
-#endif
+
         {
             // stop receiving thread
             this.isRunning = false;
@@ -558,17 +453,13 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             // avoid deadlock if keep alive timeout expired
             if (!this.isKeepAliveTimeout)
             {
-#if BROKER
-                // unlock keep alive thread and wait
-                if (this.keepAliveThread != null)
-                    this.keepAliveEvent.Set();
-#else
+
                 // unlock keep alive thread and wait
                 this.keepAliveEvent.Set();
 
                 if (this.keepAliveThread != null)
                     this.keepAliveThread.Join();
-#endif
+
             }
 
             // close network channel
@@ -602,76 +493,6 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
         }
 
-#if BROKER
-        /// <summary>
-        /// Send CONNACK message to the client (connection accepted or not)
-        /// </summary>
-        /// <param name="returnCode">Return code for CONNACK message</param>
-        /// <param name="connect">CONNECT message with all client information</param>
-        public void Connack(byte returnCode, MQTTMsgConnect connect)
-        {
-            this.lastCommTime = 0;
-
-            // create CONNACK message and ...
-            MQTTMsgConnack connack = new MQTTMsgConnack();
-            connack.ReturnCode = returnCode;
-            // ... send it to the client
-            this.Send(connack);
-
-            // connection accepted, start keep alive thread checking
-            if (connack.ReturnCode == MQTTMsgConnack.CONN_ACCEPTED)
-            {
-                this.ClientId = connect.ClientId;
-                this.CleanSession = connect.CleanSession;
-                this.WillFlag = connect.WillFlag;
-                this.WillTopic = connect.WillTopic;
-                this.WillMessage = connect.WillMessage;
-                this.WillQosLevel = connect.WillQosLevel;
-
-                this.keepAlivePeriod = connect.KeepAlivePeriod * 1000; // convert in ms
-                // broker has a tolerance of 1.5 specified keep alive period
-                this.keepAlivePeriod += (this.keepAlivePeriod / 2);
-
-                // start thread for checking keep alive period timeout
-                this.keepAliveThread = new Thread(this.KeepAliveThread);
-                this.keepAliveThread.Name = KEEP_ALIVE_THREAD;
-                this.keepAliveThread.Start();
-
-                this.IsConnected = true;
-            }
-            // connection refused, close TCP/IP channel
-            else
-            {
-                this.Close();
-            }
-        }
-
-        /// <summary>
-        /// Send SUBACK message to the client
-        /// </summary>
-        /// <param name="messageId">Message Id for the SUBSCRIBE message that is being acknowledged</param>
-        /// <param name="grantedQosLevels">Granted QoS Levels</param>
-        public void Suback(ushort messageId, byte[] grantedQosLevels)
-        {
-            MQTTMsgSuback suback = new MQTTMsgSuback();
-            suback.MessageId = messageId;
-            suback.GrantedQoSLevels = grantedQosLevels;
-
-            this.Send(suback);
-        }
-
-        /// <summary>
-        /// Send UNSUBACK message to the client
-        /// </summary>
-        /// <param name="messageId">Message Id for the UNSUBSCRIBE message that is being acknowledged</param>
-        public void Unsuback(ushort messageId)
-        {
-            MQTTMsgUnsuback unsuback = new MQTTMsgUnsuback();
-            unsuback.MessageId = messageId;
-
-            this.Send(unsuback);
-        }
-#endif
 
         /// <summary>
         /// Subscribe for message topics
@@ -805,47 +626,6 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
         }
 
-#if BROKER
-        /// <summary>
-        /// Wrapper method for raising SUBSCRIBE message event
-        /// </summary>
-        /// <param name="messageId">Message identifier for subscribe topics request</param>
-        /// <param name="topics">Topics requested to subscribe</param>
-        /// <param name="qosLevels">List of QOS Levels requested</param>
-        private void OnMQTTMsgSubscribeReceived(ushort messageId, string[] topics, byte[] qosLevels)
-        {
-            if (this.MQTTMsgSubscribeReceived != null)
-            {
-                this.MQTTMsgSubscribeReceived(this,
-                    new MQTTMsgSubscribeEventArgs(messageId, topics, qosLevels));
-            }
-        }
-
-        /// <summary>
-        /// Wrapper method for raising UNSUBSCRIBE message event
-        /// </summary>
-        /// <param name="messageId">Message identifier for unsubscribe topics request</param>
-        /// <param name="topics">Topics requested to unsubscribe</param>
-        private void OnMQTTMsgUnsubscribeReceived(ushort messageId, string[] topics)
-        {
-            if (this.MQTTMsgUnsubscribeReceived != null)
-            {
-                this.MQTTMsgUnsubscribeReceived(this,
-                    new MQTTMsgUnsubscribeEventArgs(messageId, topics));
-            }
-        }
-
-        /// <summary>
-        /// Wrapper method for client connection event
-        /// </summary>
-        private void OnMQTTMsgConnected(MQTTMsgConnect connect)
-        {
-            if (this.MQTTMsgConnected != null)
-            {
-                this.MQTTMsgConnected(this, new MQTTMsgConnectEventArgs(connect));
-            }
-        }
-#endif
 
         /// <summary>
         /// Wrapper method for client disconnection event
@@ -869,10 +649,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 // send message
                 this.channel.Send(msgBytes);
 
-#if !BROKER
                 // update last message sent ticks
                 this.lastCommTime = Environment.TickCount;
-#endif
+
             }
             catch (Exception e)
             {
@@ -922,24 +701,20 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
             catch (SocketException e)
             {
-#if (!MF_FRAMEWORK_VERSION_V4_2 && !MF_FRAMEWORK_VERSION_V4_3 && !COMPACT_FRAMEWORK)
+
                 // connection reset by broker
                 if (e.SocketErrorCode == SocketError.ConnectionReset)
                     this.IsConnected = false;
-#endif
+
                 MQTTUtility.Trace.WriteLine(TraceLevel.Error, "Exception occurred: {0}", e.ToString());
 
                 throw new MQTTCommunicationException(e);
             }
 
-#if (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3 || COMPACT_FRAMEWORK)
-            // wait for answer from broker
-            if (this.syncEndReceiving.WaitOne(timeout, false))
-#else
+
             // wait for answer from broker
             if (this.syncEndReceiving.WaitOne(timeout))
-#endif
-            {
+      {
                 // message received without exception
                 if (this.exReceiving == null)
                     return this.msgReceived;
@@ -1113,13 +888,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             byte[] fixedHeaderFirstByte = new byte[1];
             byte msgType;
             
-#if BROKER
-            long now = 0;
 
-            // receive thread started, broker need to receive the first message
-            // (CONNECT) within a reasonable amount of time after TCP/IP connection 
-            long connectTime = Environment.TickCount;
-#endif
 
             while (this.isRunning)
             {
@@ -1130,23 +899,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                         readBytes = this.channel.Receive(fixedHeaderFirstByte);
                     else
                     {
-#if BROKER
-                        // client not connected (client didn't send CONNECT yet)
-                        if (!this.IsConnected)
-                        {
-                            now = Environment.TickCount;
 
-                            // if connect timeout exceeded ... 
-                            if ((now - connectTime) >= this.settings.TimeoutOnConnection)
-                            {
-                                // client must close connection
-                                this.Close();
 
-                                // client raw disconnection
-                                this.OnMQTTMsgDisconnected();
-                            }
-                        }
-#endif
                         // no bytes available, sleep before retry
                         readBytes = 0;
                         Thread.Sleep(10);
@@ -1154,10 +908,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
                     if (readBytes > 0)
                     {
-#if BROKER
-                        // update last message received ticks
-                        this.lastCommTime = Environment.TickCount;
-#endif
+
 
                         // extract message type from received byte
                         msgType = (byte)((fixedHeaderFirstByte[0] & MQTTMsgBase.MSG_TYPE_MASK) >> MQTTMsgBase.MSG_TYPE_OFFSET);
@@ -1167,79 +918,48 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                             // CONNECT message received
                             case MQTTMsgBase.MQTT_MSG_CONNECT_TYPE:
 
-#if BROKER
-                                MQTTMsgConnect connect = MQTTMsgConnect.Parse(fixedHeaderFirstByte[0], this.channel);
-                                Trace.WriteLine(TraceLevel.Frame, "RECV {0}", connect);
 
-                                // raise message received event
-                                this.OnMQTTMsgReceived(connect);
-                                break;
-#else
                                 throw new MQTTClientException(MQTTClientErrorCode.WrongBrokerMessage);
-#endif
+
                                 
                             // CONNACK message received
                             case MQTTMsgBase.MQTT_MSG_CONNACK_TYPE:
 
-#if BROKER
-                                throw new MQTTClientException(MQTTClientErrorCode.WrongBrokerMessage);
-#else
+
                                 this.msgReceived = MQTTMsgConnack.Parse(fixedHeaderFirstByte[0], this.channel);
                                 MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", this.msgReceived);
                                 this.syncEndReceiving.Set();
                                 break;
-#endif
+
 
                             // PINGREQ message received
                             case MQTTMsgBase.MQTT_MSG_PINGREQ_TYPE:
 
-#if BROKER
-                                this.msgReceived = MQTTMsgPingReq.Parse(fixedHeaderFirstByte[0], this.channel);
-                                Trace.WriteLine(TraceLevel.Frame, "RECV {0}", this.msgReceived);
 
-                                MQTTMsgPingResp pingresp = new MQTTMsgPingResp();
-                                this.Send(pingresp);
-
-                                // raise message received event
-                                //this.OnMQTTMsgReceived(this.msgReceived);
-                                break;
-#else
                                 throw new MQTTClientException(MQTTClientErrorCode.WrongBrokerMessage);
-#endif
+
 
                             // PINGRESP message received
                             case MQTTMsgBase.MQTT_MSG_PINGRESP_TYPE:
 
-#if BROKER
-                                throw new MQTTClientException(MQTTClientErrorCode.WrongBrokerMessage);
-#else
+
                                 this.msgReceived = MQTTMsgPingResp.Parse(fixedHeaderFirstByte[0], this.channel);
                                 MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", this.msgReceived);
                                 this.syncEndReceiving.Set();
                                 break;
-#endif
+
 
                             // SUBSCRIBE message received
                             case MQTTMsgBase.MQTT_MSG_SUBSCRIBE_TYPE:
 
-#if BROKER
-                                MQTTMsgSubscribe subscribe = MQTTMsgSubscribe.Parse(fixedHeaderFirstByte[0], this.channel);
-                                Trace.WriteLine(TraceLevel.Frame, "RECV {0}", subscribe);
 
-                                // raise message received event
-                                this.OnMQTTMsgReceived(subscribe);
-
-                                break;
-#else
                                 throw new MQTTClientException(MQTTClientErrorCode.WrongBrokerMessage);
-#endif
+
 
                             // SUBACK message received
                             case MQTTMsgBase.MQTT_MSG_SUBACK_TYPE:
 
-#if BROKER
-                                throw new MQTTClientException(MQTTClientErrorCode.WrongBrokerMessage);
-#else
+
                                 // enqueue SUBACK message received (for QoS Level 1) into the internal queue
                                 MQTTMsgSuback suback = MQTTMsgSuback.Parse(fixedHeaderFirstByte[0], this.channel);
                                 MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", suback);
@@ -1248,7 +968,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                 this.EnqueueInternal(suback);
 
                                 break;
-#endif
+
 
                             // PUBLISH message received
                             case MQTTMsgBase.MQTT_MSG_PUBLISH_TYPE:
@@ -1383,13 +1103,10 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
             while (this.isRunning)
             {
-#if (MF_FRAMEWORK_VERSION_V4_2 || MF_FRAMEWORK_VERSION_V4_3 || COMPACT_FRAMEWORK)
-                // waiting...
-                this.keepAliveEvent.WaitOne(wait, false);
-#else
+
                 // waiting...
                 this.keepAliveEvent.WaitOne(wait);
-#endif
+
 
                 if (this.isRunning)
                 {

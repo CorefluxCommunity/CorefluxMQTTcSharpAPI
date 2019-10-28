@@ -1,0 +1,12 @@
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\bin\Debug\MQTTTest.exe
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\bin\Debug\MQTTTest.pdb
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\bin\Debug\CorefluxMQTTcSharpAPI.dll
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\bin\Debug\CorefluxMQTTcSharpAPI.pdb
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.csprojAssemblyReference.cache
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.Form1.resources
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.Properties.Resources.resources
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.csproj.GenerateResource.cache
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.csproj.CoreCompileInputs.cache
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.csproj.CopyComplete
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.exe
+D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\MQTTTest\obj\Debug\MQTTTest.pdb
