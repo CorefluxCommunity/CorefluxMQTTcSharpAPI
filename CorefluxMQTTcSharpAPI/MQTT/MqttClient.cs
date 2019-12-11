@@ -40,6 +40,44 @@ using MQTTUtility = Coreflux.API.cSharp.Networking.MQTT.Utility;
 
 namespace Coreflux.API.cSharp.Networking.MQTT
 {
+
+    public class ListQueue : List<object>
+    {
+        new public void Add(object item) { throw new NotSupportedException(); }
+        new public void AddRange(IEnumerable<object> collection) { throw new NotSupportedException(); }
+        new public void Insert(int index, object item) { throw new NotSupportedException(); }
+        new public void InsertRange(int index, IEnumerable<object> collection) { throw new NotSupportedException(); }
+        new public void Reverse() { throw new NotSupportedException(); }
+        new public void Reverse(int index, int count) { throw new NotSupportedException(); }
+        new public void Sort() { throw new NotSupportedException(); }
+        new public void Sort(Comparison<object> comparison) { throw new NotSupportedException(); }
+        new public void Sort(IComparer<object> comparer) { throw new NotSupportedException(); }
+        new public void Sort(int index, int count, IComparer<object> comparer) { throw new NotSupportedException(); }
+
+        public void Enqueue(object item)
+        {
+            base.Add(item);
+        }
+
+        public object Dequeue()
+        {
+            var t = base[0];
+            base.RemoveAt(0);
+            return t;
+        }
+
+        public object Peek()
+        {
+            return base[0];
+        }
+        public object Get(Predicate<object> match)
+        {
+            var ret= base.Find(match);
+            return ret;
+
+        }
+
+    }
     /// <summary>
     /// MQTT Client
     /// </summary>
@@ -132,7 +170,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         // inflight messages queue
         private Queue inflightQueue;
         // internal queue for received messages about inflight messages
-        private Queue internalQueue;
+        private ListQueue internalQueue;
         // receive queue for received messages
         private Queue receiveQueue;
 
@@ -273,7 +311,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             // queue for received message
             this.receiveEventWaitHandle = new AutoResetEvent(false);
             this.receiveQueue = new Queue();
-            this.internalQueue = new Queue();
+            this.internalQueue = new ListQueue();
         }
 
         /// <summary>
@@ -1420,7 +1458,23 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                             lock (this.internalQueue)
                                             {
                                                 if (this.internalQueue.Count > 0)
-                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
+                                                {
+                                                    if (msgInflight.Type == MQTTMsgBase.MQTT_MSG_PUBLISH_TYPE)
+                                                    {
+                                                        msgReceived= (MQTTMsgBase)this.internalQueue.Get(p => ((MQTTMsgBase)p).Type == MQTTMsgBase.MQTT_MSG_PUBACK_TYPE);
+                                                    }else if(msgInflight.Type == MQTTMsgBase.MQTT_MSG_SUBSCRIBE_TYPE)
+                                                    {
+                                                        msgReceived = (MQTTMsgBase)this.internalQueue.Get(p => ((MQTTMsgBase)p).Type == MQTTMsgBase.MQTT_MSG_SUBACK_TYPE);
+
+                                                    }
+                                                    else // unsubscribe typr
+                                                    {
+                                                        msgReceived = (MQTTMsgBase)this.internalQueue.Get(p => ((MQTTMsgBase)p).Type == MQTTMsgBase.MQTT_MSG_UNSUBACK_TYPE);
+
+                                                    }
+                                                    //msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
+                                                }
+                                                    
                                             }
 
                                             // it is a PUBACK message or a SUBACK/UNSUBACK message
@@ -1436,7 +1490,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                                     lock (this.internalQueue)
                                                     {
                                                         // received message processed
-                                                        this.internalQueue.Dequeue();
+                                                        //this.internalQueue.Dequeue();
+                                                        this.internalQueue.Remove(msgReceived);
                                                         acknowledge = true;
                                                     }
 
@@ -1487,7 +1542,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                             lock (this.internalQueue)
                                             {
                                                 if (this.internalQueue.Count > 0)
-                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
+                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Get(p => ((MQTTMsgBase)p).Type == MQTTMsgBase.MQTT_MSG_PUBREC_TYPE);
+
+                                                //msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
                                             }
 
                                             // it is a PUBREC message
@@ -1499,7 +1556,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                                     lock (this.internalQueue)
                                                     {
                                                         // received message processed
-                                                        this.internalQueue.Dequeue();
+                                                        //this.internalQueue.Dequeue();
+                                                        this.internalQueue.Remove(msgReceived);
                                                         acknowledge = true;
                                                     }
 
@@ -1560,7 +1618,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                             lock (this.internalQueue)
                                             {
                                                 if (this.internalQueue.Count > 0)
-                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
+                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Get(p => ((MQTTMsgBase)p).Type == MQTTMsgBase.MQTT_MSG_PUBREL_TYPE);
+
+                                                //msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
                                             }
 
                                             // it is a PUBREL message
@@ -1572,7 +1632,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                                     lock (this.internalQueue)
                                                     {
                                                         // received message processed
-                                                        this.internalQueue.Dequeue();
+                                                        this.internalQueue.Remove(msgReceived);
+                                                        //this.internalQueue.Dequeue();
                                                     }
 
                                                     MQTTMsgPubcomp pubcomp = new MQTTMsgPubcomp();
@@ -1606,7 +1667,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                             lock (this.internalQueue)
                                             {
                                                 if (this.internalQueue.Count > 0)
-                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
+                                                    msgReceived = (MQTTMsgBase)this.internalQueue.Get(p => ((MQTTMsgBase)p).Type == MQTTMsgBase.MQTT_MSG_PUBCOMP_TYPE);
+
+                                                //msgReceived = (MQTTMsgBase)this.internalQueue.Peek();
                                             }
 
                                             // it is a PUBCOMP message
@@ -1618,7 +1681,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                                                     lock (this.internalQueue)
                                                     {
                                                         // received message processed
-                                                        this.internalQueue.Dequeue();
+                                                        //(this.internalQueue.Dequeue();
+                                                        this.internalQueue.Remove(msgReceived);
                                                         acknowledge = true;
                                                     }
 

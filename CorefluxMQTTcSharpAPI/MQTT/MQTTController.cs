@@ -174,7 +174,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             {
                 if (Data.ContainsKey(topic))
                 {
-
+                    Data[topic] = payload;
                     Publish(topic, payload, qoslevel, retain);
 
                 }

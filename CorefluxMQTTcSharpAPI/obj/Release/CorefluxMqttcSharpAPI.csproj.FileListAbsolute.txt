@@ -8,4 +8,3 @@ D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\Corefl
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMQTTcSharpAPI\obj\Release\CorefluxMQTTcSharpAPI.csproj.CoreCompileInputs.cache
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMQTTcSharpAPI\obj\Release\CorefluxMQTTcSharpAPI.dll
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMQTTcSharpAPI\obj\Release\CorefluxMQTTcSharpAPI.pdb
-D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxMQTTcSharpAPI\obj\Release\CorefluxMQTTcSharpAPI.csprojAssemblyReference.cache
