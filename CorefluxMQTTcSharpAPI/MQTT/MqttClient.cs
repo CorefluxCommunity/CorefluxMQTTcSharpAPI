@@ -37,6 +37,9 @@ using System.Collections;
 // alias needed due to Microsoft.SPOT.Trace in .Net Micro Framework
 // (it's ambiguos with Coreflux.API.cSharp.Networking.MQTT.Utility.Trace)
 using MQTTUtility = Coreflux.API.cSharp.Networking.MQTT.Utility;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Diagnostics;
 
 namespace Coreflux.API.cSharp.Networking.MQTT
 {
@@ -81,7 +84,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
     /// <summary>
     /// MQTT Client
     /// </summary>
-    public class MQTTClient
+    internal class MQTTClient
     {
 
 
@@ -522,7 +525,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
             catch (Exception e)
             {
-                MQTTUtility.Trace.WriteLine(TraceLevel.Error, "Exception occurred: {0}", e.ToString());
+                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Error, "Exception occurred: {0}", e.ToString());
 
                 this.isKeepAliveTimeout = true;
                 // client must close connection
@@ -693,7 +696,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
             catch (Exception e)
             {
-                MQTTUtility.Trace.WriteLine(TraceLevel.Error, "Exception occurred: {0}", e.ToString());
+                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Error, "Exception occurred: {0}", e.ToString());
 
                 throw new MQTTCommunicationException(e);
             }
@@ -705,7 +708,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="msg">Message</param>
         private void Send(MQTTMsgBase msg)
         {
-            MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "SEND {0}", msg);
+            MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "SEND {0}", msg);
             this.Send(msg.GetBytes());
         }
 
@@ -744,7 +747,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 if (e.SocketErrorCode == SocketError.ConnectionReset)
                     this.IsConnected = false;
 
-                MQTTUtility.Trace.WriteLine(TraceLevel.Error, "Exception occurred: {0}", e.ToString());
+                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Error, "Exception occurred: {0}", e.ToString());
 
                 throw new MQTTCommunicationException(e);
             }
@@ -785,7 +788,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <returns>MQTT message response</returns>
         private MQTTMsgBase SendReceive(MQTTMsgBase msg, int timeout)
         {
-            MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "SEND {0}", msg);
+            MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "SEND {0}", msg);
             return this.SendReceive(msg.GetBytes(), timeout);
         }
 
@@ -965,7 +968,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
 
                                 this.msgReceived = MQTTMsgConnack.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", this.msgReceived);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", this.msgReceived);
                                 this.syncEndReceiving.Set();
                                 break;
 
@@ -982,7 +985,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
 
                                 this.msgReceived = MQTTMsgPingResp.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", this.msgReceived);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", this.msgReceived);
                                 this.syncEndReceiving.Set();
                                 break;
 
@@ -1000,7 +1003,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
                                 // enqueue SUBACK message received (for QoS Level 1) into the internal queue
                                 MQTTMsgSuback suback = MQTTMsgSuback.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", suback);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", suback);
 
                                 // enqueue SUBACK message into the internal queue
                                 this.EnqueueInternal(suback);
@@ -1012,7 +1015,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                             case MQTTMsgBase.MQTT_MSG_PUBLISH_TYPE:
 
                                 MQTTMsgPublish publish = MQTTMsgPublish.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", publish);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", publish);
 
                                 // enqueue PUBLISH message to acknowledge into the inflight queue
                                 this.EnqueueInflight(publish, MQTTMsgFlow.ToAcknowledge);
@@ -1024,7 +1027,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
                                 // enqueue PUBACK message received (for QoS Level 1) into the internal queue
                                 MQTTMsgPuback puback = MQTTMsgPuback.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", puback);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", puback);
 
                                 // enqueue PUBACK message into the internal queue
                                 this.EnqueueInternal(puback);
@@ -1036,7 +1039,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
                                 // enqueue PUBREC message received (for QoS Level 2) into the internal queue
                                 MQTTMsgPubrec pubrec = MQTTMsgPubrec.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", pubrec);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", pubrec);
 
                                 // enqueue PUBREC message into the internal queue
                                 this.EnqueueInternal(pubrec);
@@ -1048,7 +1051,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
                                 // enqueue PUBREL message received (for QoS Level 2) into the internal queue
                                 MQTTMsgPubrel pubrel = MQTTMsgPubrel.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", pubrel);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", pubrel);
 
                                 // enqueue PUBREL message into the internal queue
                                 this.EnqueueInternal(pubrel);
@@ -1060,7 +1063,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
                                 // enqueue PUBCOMP message received (for QoS Level 2) into the internal queue
                                 MQTTMsgPubcomp pubcomp = MQTTMsgPubcomp.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", pubcomp);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", pubcomp);
 
                                 // enqueue PUBCOMP message into the internal queue
                                 this.EnqueueInternal(pubcomp);
@@ -1090,7 +1093,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 #else
                                 // enqueue UNSUBACK message received (for QoS Level 1) into the internal queue
                                 MQTTMsgUnsuback unsuback = MQTTMsgUnsuback.Parse(fixedHeaderFirstByte[0], this.channel);
-                                MQTTUtility.Trace.WriteLine(TraceLevel.Frame, "RECV {0}", unsuback);
+                                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Frame, "RECV {0}", unsuback);
 
                                 // enqueue UNSUBACK message into the internal queue
                                 this.EnqueueInternal(unsuback);
@@ -1124,7 +1127,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 }
                 catch (Exception e)
                 {
-                    MQTTUtility.Trace.WriteLine(TraceLevel.Error, "Exception occurred: {0}", e.ToString());
+                    MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Error, "Exception occurred: {0}", e.ToString());
                     this.exReceiving = new MQTTCommunicationException(e);
                 }
             }
@@ -1773,7 +1776,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
             catch (MQTTCommunicationException e)
             {
-                MQTTUtility.Trace.WriteLine(TraceLevel.Error, "Exception occurred: {0}", e.ToString());
+                MQTTUtility.Trace.WriteLine(MQTTUtility.TraceLevel.Error, "Exception occurred: {0}", e.ToString());
 
                 this.Close();
 
@@ -1826,4 +1829,282 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
         }
     }
+
+    public class MqttClient {
+        private MQTTClient RemoteClient { get; set; }
+        public string remoteUsername;
+        public string remotePassword;
+        public bool useTLS;
+        public bool useAuth;
+        public int QOSLevel;
+        public string remoteTopic; //TODO ADD #
+        //private string remoteTopicPublish;
+        public string remoteAddress;
+        public int remotePort;
+        private bool clientDisconnectRequest;
+        private int RemoteConnectionAttemptCount;
+        private string remoteClientID;
+        private bool retainFlag;
+        private byte qosLevelPublish;
+        private bool DisconnectRequest;
+        public Action<string, bool, EventLogEntryType> logAction;
+        //public MqttClient otherClient;
+        public event Action<string, MQTTMsgPublishEventArgs, MqttClient> onMessageRecievedToSyncronize;
+        private bool runForever;
+        private Dictionary<string, byte[]> mydataSent;
+        // private HashSet<string> mydataSentControl;
+        public MqttClient(
+            string remoteAddress, int remotePort,
+            //string remoteTopic,
+            int QOSLevel,
+            string remoteClientID,
+            bool useAuth,
+            string remoteUsername, string remotePassword,
+            bool useTLS,
+            bool retainFlag,
+            byte qosPublish,
+            bool runForever
+        ) {
+            this.runForever = runForever;
+            this.retainFlag = retainFlag;
+            this.qosLevelPublish = qosPublish;
+            //TODO move CONNECT
+            this.mydataSent = new Dictionary<string, byte[]>();
+            //this.mydataSentControl = new HashSet<string>();
+            this.remoteAddress = remoteAddress;
+            this.remotePort = remotePort;
+
+            this.QOSLevel = QOSLevel;
+            this.remoteClientID = remoteClientID;
+            this.useAuth = useAuth;
+            this.remoteUsername = remoteUsername;
+            this.remotePassword = remotePassword;
+            this.useTLS = useTLS;
+        }
+
+        public bool connected() {
+            return this.RemoteClient.IsConnected;
+        }
+        public int connectToRemote(bool reconnet = false) {
+
+            if (!reconnet) {
+                this.logAction("Connecting to Remote server " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information);
+
+            } else {
+                int delayTime = this.RemoteConnectionAttemptCount * 10;
+                this.logAction("Connecting to Remote server " + this.remoteAddress + ":" + this.remotePort + " in " + delayTime + " Seconds", false, EventLogEntryType.Information);
+                System.Threading.Thread.Sleep(10000);
+            }
+            
+
+
+            try {
+               
+                
+                if (this.useTLS) {
+                    //new X509Certificate().ver
+                    //var cert = new X509ChainPolicy();
+                    //cert.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+                    this.RemoteClient = new MQTTClient(this.remoteAddress, this.remotePort, this.useTLS,null );
+
+                } else {
+                    this.RemoteClient = new MQTTClient(this.remoteAddress, this.remotePort, this.useTLS, null);
+
+                }
+            }
+            catch (Exception e) {
+                this.logAction("Error connectiong to Remote: " + e.Message, false, EventLogEntryType.Error);
+                throw (e);
+            }
+
+
+            this.clientDisconnectRequest = false;
+            
+            try {
+                this.RemoteClient.Connect(this.remoteClientID);
+                this.createClientConnectedHandler();
+                return 0;
+            }
+            catch (Exception e) {
+                this.logAction("Error on Connect " + e.Message, true, EventLogEntryType.Error);
+                this.tryReconnectRemote();
+            }
+
+            return 0;
+
+        }
+
+        private void addDataControl(string key, byte[] data) {
+            /*lock (this.mydataSent)
+            {*/
+            try {
+                this.mydataSent[key] = data;
+            }
+            catch (Exception e) {
+                try {
+                    this.mydataSent.Add(key, data);
+                }
+                catch (Exception e1) {
+                    this.logAction("ERROR ADD", true, EventLogEntryType.Information);
+                }
+
+            }
+            //}
+        }
+
+        public void unsubscribe(string topic) {
+            this.RemoteClient.Unsubscribe(new string[1] { topic });
+        }
+
+        public void unsubscribe(string[] topics) {
+            this.RemoteClient.Unsubscribe(topics);
+        }
+
+        public int publishOnRemote(string topic, string message) {
+            string topicToPublish = topic;// this.remoteTopicPublish + topic;
+            if (this.RemoteClient == null || !this.RemoteClient.IsConnected) {
+                return 1;
+            }
+            byte[] DataToPublish = System.Text.Encoding.ASCII.GetBytes(message);
+            this.addDataControl(topicToPublish, DataToPublish);
+            try {
+                this.RemoteClient.Publish(topicToPublish, DataToPublish, this.qosLevelPublish, this.retainFlag);
+            }
+            catch (Exception e) {
+                this.logAction("Error writting to MQTT, " +e.Message, false,EventLogEntryType.Warning);
+                return 1;
+            }
+            return 0;
+        }
+
+
+        public int publishOnRemote(string topic, string message,byte QOSLevel, bool retain) {
+            if (this.RemoteClient == null || !this.RemoteClient.IsConnected) {
+                return 1;
+            }
+            byte[] DataToPublish = System.Text.Encoding.ASCII.GetBytes(message);
+            this.addDataControl(topic, DataToPublish);
+            try {
+                this.RemoteClient.Publish(topic, DataToPublish, QOSLevel, retain);
+            }
+            catch (Exception e) {
+                this.logAction("Error writting to MQTT, " + e.Message, false, EventLogEntryType.Warning);
+                return 1;
+            }
+            return 0;
+        }
+
+
+        private void createClientConnectedHandler() {
+            this.mydataSent = new Dictionary<string, byte[]>();
+            this.DisconnectRequest = false;
+            //this.connectSucessFirstTime = true;
+            this.logAction("Connected to " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information);
+            this.RemoteConnectionAttemptCount = 0;
+            this.createClientHandlersRuntime();
+            this.logAction("Subscribe " + this.remoteTopic + " on " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information);
+            /*var level = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce;
+            if (this.QOSLevel != 0) {
+                level = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
+            }
+            await this.RemoteClient.SubscribeAsync(this.remoteTopic, level);*/
+
+        }
+
+
+        private void createClientHandlersRuntime() {
+
+            this.RemoteClient.MQTTMsgDisconnected += (sender,e) => {
+                //if (!this.connectSucessFirstTime)
+                //{
+                //    this.logAction("Cannot connect " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Error);
+                //    //System.Environment.Exit(1);
+                //}
+
+                if (!this.clientDisconnectRequest /*&& this.connectSucessFirstTime*/) {
+                    this.logAction("Disconnected From " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Warning);
+                    this.tryReconnectRemote();
+
+                }
+            };
+
+
+            this.RemoteClient.MQTTMsgPublishReceived += (sender,e) => {
+                string topicPublic = e.Topic;
+
+                if (!this.wasMEClient(e.Topic, e.Message)) {
+                    //this.logMessage("Recieved Remote" + e.ApplicationMessage.Topic + " at " + DateTime.Now.ToString("HH:mm:ss.ffff tt"),true);
+                    //var payload = e.ApplicationMessage.ConvertPayloadToString();
+                    this.onMessageRecievedToSyncronize(topicPublic, e, this);
+                } else {
+                    //lock (this.mydataSent)
+                    //{
+                    try {
+                        this.mydataSent.Remove(topicPublic);
+                    }
+                    catch {
+
+                    }
+                    //}
+                }
+            };
+        }
+
+        private bool wasMEClient(string topic, byte[] data) {
+            return false;
+            bool returnData = returnData = false;
+            //lock (this.mydataSent)
+            //{
+            try {
+                returnData = (this.mydataSent.ContainsKey(topic) && this.mydataSent[topic].SequenceEqual(data));
+            }
+            catch (Exception e) {
+                returnData = false;
+            }
+            //}
+            return returnData;
+        }
+        private int tryReconnectRemote() {
+            if (this.RemoteConnectionAttemptCount > 10 && !this.runForever) {
+                this.logAction("Remote Connection Atempt Exceded", false, EventLogEntryType.Error);
+                //throw new Exception("Cannot connect to remote");
+                return -1;
+            }
+            this.logAction("Will Recconect to Remote " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Warning);
+            this.RemoteConnectionAttemptCount++;
+            try {
+                this.connectToRemote(true);
+                return 0;
+            }
+            catch (Exception e) {
+                return this.tryReconnectRemote();
+            }
+
+
+        }
+
+
+        public void subscribe(string topic,byte qosLevel) {
+            this.RemoteClient.Subscribe(new string[1] { topic }, new byte[1] { qosLevel });
+        }
+        public int disconnectToRemoteAsync() {
+            if (!this.RemoteClient.IsConnected) {
+                return -1;
+            }
+            this.clientDisconnectRequest = true;
+            return this.disconnectFromMQTT();
+
+        }
+
+        private int disconnectFromMQTT() {
+            if (this.DisconnectRequest == false) {
+                this.DisconnectRequest = true;
+                this.RemoteClient.Disconnect();
+                return 0;
+            }
+            return -1;
+        }
+    }
+
+
 }

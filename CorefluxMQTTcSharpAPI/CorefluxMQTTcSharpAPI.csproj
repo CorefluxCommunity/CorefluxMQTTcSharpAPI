@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6CD6C70B-110D-4CB8-AA9A-6459436CF785}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Coreflux</RootNamespace>
+    <AssemblyName>CorefluxMQTTcSharpAPI</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MQTT\Exceptions\MqttClientException.cs" />
+    <Compile Include="MQTT\Exceptions\MqttCommunicationException.cs" />
+    <Compile Include="MQTT\Exceptions\MqttConnectionException.cs" />
+    <Compile Include="MQTT\Exceptions\MqttTimeoutException.cs" />
+    <Compile Include="MQTT\IMqttNetworkChannel.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgBase.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgConnack.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgConnect.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgConnectEventArgs.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgContext.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgDisconnect.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPingReq.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPingResp.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPuback.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPubcomp.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPublish.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPublishedEventArgs.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPublishEventArgs.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPubrec.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgPubrel.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgSuback.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgSubscribe.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgSubscribedEventArgs.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgSubscribeEventArgs.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgUnsuback.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgUnsubscribe.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgUnsubscribedEventArgs.cs" />
+    <Compile Include="MQTT\Messages\MqttMsgUnsubscribeEventArgs.cs" />
+    <Compile Include="MQTT\MqttClient.cs" />
+    <Compile Include="MQTT\MQTTController.cs" />
+    <Compile Include="MQTT\MqttNetworkChannel.cs" />
+    <Compile Include="MQTT\MqttSettings.cs" />
+    <Compile Include="MQTT\Utility\QueueExtension.cs" />
+    <Compile Include="MQTT\Utility\Trace.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MQTT\Utility\QueueExtension.cs.meta" />
+    <None Include="MQTT\Utility\Trace.cs.meta" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
