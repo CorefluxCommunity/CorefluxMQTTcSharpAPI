@@ -1847,7 +1847,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         private bool retainFlag;
         private byte qosLevelPublish;
         private bool DisconnectRequest;
-        public Action<string, bool, EventLogEntryType> logAction;
+        public Action<string, bool, EventLogEntryType, MqttClient> logAction;
         //public MqttClient otherClient;
         public event Action<string, MQTTMsgPublishEventArgs, MqttClient> onMessageRecievedToSyncronize;
         private bool runForever;
@@ -1888,11 +1888,11 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         public int connectToRemote(bool reconnet = false) {
 
             if (!reconnet) {
-                this.logAction("Connecting to Remote server " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information);
+                this.logAction("Connecting to Remote server " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information,this);
 
             } else {
                 int delayTime = this.RemoteConnectionAttemptCount * 10;
-                this.logAction("Connecting to Remote server " + this.remoteAddress + ":" + this.remotePort + " in " + delayTime + " Seconds", false, EventLogEntryType.Information);
+                this.logAction("Connecting to Remote server " + this.remoteAddress + ":" + this.remotePort + " in " + delayTime + " Seconds", false, EventLogEntryType.Information,this);
                 System.Threading.Thread.Sleep(10000);
             }
             
@@ -1913,7 +1913,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 }
             }
             catch (Exception e) {
-                this.logAction("Error connectiong to Remote: " + e.Message, false, EventLogEntryType.Error);
+                this.logAction("Error connectiong to Remote: " + e.Message, false, EventLogEntryType.Error,this);
                 throw (e);
             }
 
@@ -1926,7 +1926,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 return 0;
             }
             catch (Exception e) {
-                this.logAction("Error on Connect " + e.Message, true, EventLogEntryType.Error);
+                this.logAction("Error on Connect " + e.Message, true, EventLogEntryType.Error,this);
                 this.tryReconnectRemote();
             }
 
@@ -1945,7 +1945,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                     this.mydataSent.Add(key, data);
                 }
                 catch (Exception e1) {
-                    this.logAction("ERROR ADD", true, EventLogEntryType.Information);
+                    this.logAction("ERROR ADD", true, EventLogEntryType.Information,this);
                 }
 
             }
@@ -1971,7 +1971,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 this.RemoteClient.Publish(topicToPublish, DataToPublish, this.qosLevelPublish, this.retainFlag);
             }
             catch (Exception e) {
-                this.logAction("Error writting to MQTT, " +e.Message, false,EventLogEntryType.Warning);
+                this.logAction("Error writting to MQTT, " +e.Message, false,EventLogEntryType.Warning,this);
                 return 1;
             }
             return 0;
@@ -1988,7 +1988,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 this.RemoteClient.Publish(topic, DataToPublish, QOSLevel, retain);
             }
             catch (Exception e) {
-                this.logAction("Error writting to MQTT, " + e.Message, false, EventLogEntryType.Warning);
+                this.logAction("Error writting to MQTT, " + e.Message, false, EventLogEntryType.Warning,this);
                 return 1;
             }
             return 0;
@@ -1999,10 +1999,10 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             this.mydataSent = new Dictionary<string, byte[]>();
             this.DisconnectRequest = false;
             //this.connectSucessFirstTime = true;
-            this.logAction("Connected to " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information);
+            this.logAction("Connected to " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information,this);
             this.RemoteConnectionAttemptCount = 0;
             this.createClientHandlersRuntime();
-            this.logAction("Subscribe " + this.remoteTopic + " on " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information);
+            this.logAction("Subscribe " + this.remoteTopic + " on " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Information,this);
             /*var level = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce;
             if (this.QOSLevel != 0) {
                 level = MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce;
@@ -2022,7 +2022,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 //}
 
                 if (!this.clientDisconnectRequest /*&& this.connectSucessFirstTime*/) {
-                    this.logAction("Disconnected From " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Warning);
+                    this.logAction("Disconnected From " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Warning,this);
                     this.tryReconnectRemote();
 
                 }
@@ -2066,11 +2066,11 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         }
         private int tryReconnectRemote() {
             if (this.RemoteConnectionAttemptCount > 10 && !this.runForever) {
-                this.logAction("Remote Connection Atempt Exceded", false, EventLogEntryType.Error);
+                this.logAction("Remote Connection Atempt Exceded", false, EventLogEntryType.Error,this);
                 //throw new Exception("Cannot connect to remote");
                 return -1;
             }
-            this.logAction("Will Recconect to Remote " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Warning);
+            this.logAction("Will Recconect to Remote " + this.remoteAddress + ":" + this.remotePort, false, EventLogEntryType.Warning,this);
             this.RemoteConnectionAttemptCount++;
             try {
                 this.connectToRemote(true);

@@ -26,11 +26,14 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         private Dictionary<string,MQTTMsgPublishEventArgs> myTopics;
         private object myTopicsLock;
         public event Action<string, MQTTMsgPublishEventArgs> onNewDataAction;
-        public mqttClientData(MqttClient client, Action<string, MQTTMsgPublishEventArgs> onNewMessage) {
+        public event Action<string, bool, System.Diagnostics.EventLogEntryType> logMessage;
+        public mqttClientData(MqttClient client, Action<string, MQTTMsgPublishEventArgs> onNewMessage,
+            Action<string, bool, System.Diagnostics.EventLogEntryType> logMessage) {
             this.myTopicsLock = new object();
             this.myTopics = new Dictionary<string, MQTTMsgPublishEventArgs>();
             this.client = client;
             this.onNewDataAction = onNewMessage;
+            this.logMessage = logMessage;
         }
         public string getData(string topic) {
             string returnData = "";
@@ -86,6 +89,11 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
             return returnData;
         }
+        public void LogMessage(string message, bool onlyConsole, System.Diagnostics.EventLogEntryType type, MqttClient sender) {
+            if (sender.Equals(this.client)) {
+                this.logMessage?.Invoke(message, onlyConsole, type);
+            }
+        }
     }
     public static class MQTTController
     {
@@ -134,7 +142,19 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
         }
 
-        private static void logMessage(string message, bool onlyConsole, System.Diagnostics.EventLogEntryType type) {
+        private static void logMessage(string message, bool onlyConsole, System.Diagnostics.EventLogEntryType type, MqttClient sender) {
+            List<mqttClientData> everyBodyUsisngBroker = new List<mqttClientData>();
+            lock (MQTTController.clientStuffLock) {
+                foreach(string clientID in MQTTController.clientsActiveConnections.Keys) {
+                    everyBodyUsisngBroker.AddRange(MQTTController.clientsActiveConnections[clientID].FindAll(mqqtCData => mqqtCData.client.Equals(sender)));
+                }
+            }
+            if (everyBodyUsisngBroker != null && everyBodyUsisngBroker.Count > 0) {
+                System.Threading.Tasks.Parallel.ForEach(everyBodyUsisngBroker, (clientUsingBroker) => {
+                    clientUsingBroker.LogMessage(message, onlyConsole, type, sender);
+                });
+            }
+
 
         }
 
@@ -196,7 +216,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
         public static MQTTid Init(string remoteAddr, int remotePort,
             /*Action<string,bool,System.Diagnostics.EventLogEntryType> logMessage,*/
-            Action<string,MQTTMsgPublishEventArgs> onNewMessage) {
+            Action<string,MQTTMsgPublishEventArgs> onNewMessage,
+            Action<string,bool, System.Diagnostics.EventLogEntryType> logMessage
+            ) {
 
             //First get client to remote if not exists new is created
             MqttClient remoteClient = MQTTController.getConnectionTORemoteBroker(remoteAddr, remotePort);
@@ -206,11 +228,11 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 if (MQTTController.clientsActiveConnections.ContainsKey(connectedSoftwareId)) { //Not First Connection
                     mqttClientData onMememory =  MQTTController.clientsActiveConnections[connectedSoftwareId].First(cdata => cdata.client.Equals(remoteClient));
                     if(onMememory == null) {// Not Connected to this broker
-                        MQTTController.clientsActiveConnections[connectedSoftwareId].Add(new mqttClientData(remoteClient, onNewMessage));
+                        MQTTController.clientsActiveConnections[connectedSoftwareId].Add(new mqttClientData(remoteClient, onNewMessage, logMessage));
                     }
                 } else { //FirstConnection
                     MQTTController.clientsActiveConnections.Add(connectedSoftwareId, new List<mqttClientData>());
-                    MQTTController.clientsActiveConnections[connectedSoftwareId].Add(new mqttClientData(remoteClient, onNewMessage));
+                    MQTTController.clientsActiveConnections[connectedSoftwareId].Add(new mqttClientData(remoteClient, onNewMessage, logMessage));
                 }
             }
             return new MQTTid(remoteAddr, remotePort);
@@ -348,7 +370,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
 
     public interface ICorefluxMQTTClient {
-        void Init(string remoteAddr, int remotePort, Action<string, MQTTMsgPublishEventArgs> onNewMessage);
+        void Init(string remoteAddr, int remotePort, Action<string, MQTTMsgPublishEventArgs> onNewMessage, 
+            Action<string, bool, System.Diagnostics.EventLogEntryType> logMessage);
         int Disconnect();
         int UnSubscribe(string topic);
         int Subscribe(string topic, byte QOSLevel);
@@ -376,8 +399,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             return  MQTTController.GetData(this.myID,topic,QOSLevel);
         }
 
-        void ICorefluxMQTTClient.Init(string remoteAddr, int remotePort, Action<string, MQTTMsgPublishEventArgs> onNewMessage) {
-            this.myID = MQTTController.Init(remoteAddr,remotePort,onNewMessage);
+        void ICorefluxMQTTClient.Init(string remoteAddr, int remotePort, Action<string, MQTTMsgPublishEventArgs> onNewMessage,
+            Action<string, bool, System.Diagnostics.EventLogEntryType> logMessage) {
+            this.myID = MQTTController.Init(remoteAddr,remotePort,onNewMessage, logMessage);
         }
 
         int ICorefluxMQTTClient.Publish(string topic, string data, byte QOSLevel, bool retain) {
