@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "BFzf4yqgyL5ag0wx/efh0+qSgYMIEhLi1uB6W68OVwum7YMQfbqeWBGoTQ6KX6GR32GfkcBZkreOVecCDwiSTg==",
+  "success": true,
+  "projectFilePath": "D:\\Docs\\Setlevel\\Produtos\\CorefluxCommunity\\APIs\\C#\\corefluxmqttcsharpapi\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet\\3.0.16\\mqttnet.3.0.16.nupkg.sha512",
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet.extensions.managedclient\\3.0.16\\mqttnet.extensions.managedclient.3.0.16.nupkg.sha512"
+  ],
+  "logs": []
+}

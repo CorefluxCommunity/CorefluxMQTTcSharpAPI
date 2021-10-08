@@ -116,10 +116,9 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         }
 
         private static string getClientIdInternal() {
-            //Random random = new Random(DateTime.Now.Hour * 60 * 60 + DateTime.Now.Minute * 60 + DateTime.Now.Second);
-            //const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
             return System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
-            //return "OLAMUNDO";//System.Reflection.Assembly.GetEntryAssembly().Location.Replace(System.IO.Path.PathSeparator.ToString(), "");
+
         }
 
         private static string randomClientIDbroker(int length) {
