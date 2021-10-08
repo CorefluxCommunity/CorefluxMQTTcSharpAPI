@@ -1,9 +1,0 @@
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\bin\Debug\CF_Temperature2CSV.exe.config
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\bin\Debug\CF_Temperature2CSV.exe
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\bin\Debug\CF_Temperature2CSV.pdb
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\bin\Debug\CorefluxMQTTcSharpAPI.dll
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\obj\Debug\CF_Temperature2CSV.csprojAssemblyReference.cache
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\obj\Debug\CF_Temperature2CSV.csproj.CoreCompileInputs.cache
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\obj\Debug\CF_Temperature2CSV.csproj.CopyComplete
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\obj\Debug\CF_Temperature2CSV.exe
-C:\Users\joao.silva\source\repos\CF_Temperature2CSV\CF_Temperature2CSV\obj\Debug\CF_Temperature2CSV.pdb

@@ -1,8 +1,0 @@
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\bin\Debug\CF_TempToCSV.exe.config
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\bin\Debug\CF_TempToCSV.exe
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\bin\Debug\CF_TempToCSV.pdb
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\bin\Debug\CorefluxMQTTcSharpAPI.dll
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\obj\Debug\CF_TempToCSV.csprojAssemblyReference.cache
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\obj\Debug\CF_TempToCSV.csproj.CopyComplete
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\obj\Debug\CF_TempToCSV.exe
-C:\Files\Git.Files\_Community\CorefluxMQTTcSharpAPI\CorefluxMQTTcSharpAPI\CF_TempToCSV\CF_TempToCSV\obj\Debug\CF_TempToCSV.pdb
