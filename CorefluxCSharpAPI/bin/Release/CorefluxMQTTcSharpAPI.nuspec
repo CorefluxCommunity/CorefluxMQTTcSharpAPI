@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>CorefluxMQTTcSharpAPI</id>
+    <version>1.1.0.2</version>
+    <authors>Setlevel</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <icon>coreflux-icon.ico</icon>
+    <description>Package Description</description>
+    <copyright>Setlevel 2019 - 2021</copyright>
+    <repository url="https://github.com/CorefluxCommunity/CorefluxMQTTcSharpAPI" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="MQTTnet" version="3.0.16" exclude="Build,Analyzers" />
+        <dependency id="MQTTnet.Extensions.ManagedClient" version="3.0.16" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

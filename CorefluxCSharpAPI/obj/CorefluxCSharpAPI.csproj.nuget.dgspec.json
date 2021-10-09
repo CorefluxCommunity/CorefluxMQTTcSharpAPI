@@ -5,7 +5,7 @@
   },
   "projects": {
     "D:\\Docs\\Setlevel\\Produtos\\CorefluxCommunity\\APIs\\C#\\corefluxmqttcsharpapi\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj": {
-      "version": "1.1.0.1",
+      "version": "1.1.0.3",
       "restore": {
         "projectUniqueName": "D:\\Docs\\Setlevel\\Produtos\\CorefluxCommunity\\APIs\\C#\\corefluxmqttcsharpapi\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
         "projectName": "CorefluxMQTTcSharpAPI",
@@ -21,7 +21,7 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "netcoreapp3.1"
+          "netstandard2.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
@@ -29,8 +29,8 @@
           "https://www.nuget.org/api/v2/": {}
         },
         "frameworks": {
-          "netcoreapp3.1": {
-            "targetAlias": "netcoreapp3.1",
+          "netstandard2.0": {
+            "targetAlias": "netstandard2.0",
             "projectReferences": {}
           }
         },
@@ -41,8 +41,8 @@
         }
       },
       "frameworks": {
-        "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
+        "netstandard2.0": {
+          "targetAlias": "netstandard2.0",
           "dependencies": {
             "MQTTnet": {
               "target": "Package",
@@ -51,6 +51,12 @@
             "MQTTnet.Extensions.ManagedClient": {
               "target": "Package",
               "version": "[3.0.16, )"
+            },
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
             }
           },
           "imports": [
@@ -63,11 +69,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.104\\RuntimeIdentifierGraph.json"
         }
       }

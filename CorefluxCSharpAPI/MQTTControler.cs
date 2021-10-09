@@ -138,9 +138,26 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="Retain"></param>
         private static void Publish(string topic, string payload, int QosLevel = 0, bool Retain = false)
         {
-            var pub=PublishAsync(topic, payload, Retain, QosLevel);
-            pub.Wait(1);
+            if (Connected())
+            {
+                var pub = PublishAsync(topic, payload, Retain, QosLevel);
+                pub.Wait(1);
+            }
+        }
+        /// <summary>
+        /// Publishes a retain topic payload async
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="payload"></param>
+        /// <param name="QosLevel"></param>
+        /// <param name="Retain"></param>
+        private static async Task PublishAsy(string topic, string payload, int QosLevel = 0, bool Retain = false)
+        {
+            if (Connected())
+            {
+                await PublishAsync(topic, payload, Retain, QosLevel);
 
+            }
         }
         /// <summary>
         /// 
@@ -152,7 +169,21 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             if (Connected())
             {
                 var sub=SubscribeAsync(topic, QosLevel);
-                sub.Wait(1);
+                sub.Wait(50);
+                AddTopicToData(topic, QosLevel);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="QosLevel"></param>
+        private static async Task SubscribeAsy(string topic, int QosLevel)
+        {
+            if (Connected())
+            {
+                await SubscribeAsync(topic, QosLevel);
+
                 AddTopicToData(topic, QosLevel);
             }
         }
@@ -296,7 +327,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             _mqttClient.StopAsync();
         }
         /// <summary>
-        /// Controls the topics we are currently publishing 
+        /// Publishses the topics
         /// </summary>
         /// <param name="topic">The topic it is required to publish </param>
         /// <param name="payload">The payload required to publish </param>
@@ -323,11 +354,38 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             }
         }
         /// <summary>
-         /// Gets the topics we are subscribed and provides the last received values
-         /// </summary>
-         /// <param name="topic">The topic it is required to publish </param>
-         /// <param name="qoslevel">The quality of service required 0,1,2</param>
-         /// <returns>The last payload received in hte topic</returns>
+        /// Publishses the topics  async
+        /// </summary>
+        /// <param name="topic">The topic it is required to publish </param>
+        /// <param name="payload">The payload required to publish </param>
+        /// <param name="qoslevel">The level of quality of service 0,1,2</param>
+        /// <param name="retain">If the topic will be retain or not on the broker True/False</param>
+        public static async Task SetDataAsync(string topic, string payload, int qoslevel = 0, bool retain = false)
+        {
+            if (Connected())
+            {
+                if (Data.ContainsKey(topic))
+                {
+                    Data[topic] = payload;
+                    await PublishAsy(topic, payload, qoslevel, retain);
+
+                }
+                else
+                {
+                    //Subscribe(topic, qoslevel);
+                    AddTopicToData(topic, qoslevel);
+                    Data[topic] = payload;
+                    await PublishAsy(topic, payload, qoslevel, retain);
+
+                }
+            }
+        }
+        /// <summary>
+        /// Gets the topics we are subscribed and provides the last received values
+        /// </summary>
+        /// <param name="topic">The topic it is required to publish </param>
+        /// <param name="qoslevel">The quality of service required 0,1,2</param>
+        /// <returns>The last payload received in hte topic</returns>
         public static string GetData(string topic, int qoslevel = 0)
         {
             if (Connected())
@@ -339,6 +397,33 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 else
                 {
                     Subscribe(topic, qoslevel);
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+
+        /// <summary>
+        /// Gets topic data Async mode
+        /// </summary>
+        /// <param name="topic">The topic it is required to publish </param>
+        /// <param name="qoslevel">The quality of service required 0,1,2</param>
+        /// <returns>The last payload received in hte topic</returns>
+        public static async Task<string> GetDataAsync(string topic,int qoslevel=0)
+        {
+            if (Connected())
+            {
+                if (Data.ContainsKey(topic))
+                {
+                    return Data[topic];
+                }
+                else
+                {
+                    await SubscribeAsy(topic, qoslevel);
                     return "";
                 }
             }

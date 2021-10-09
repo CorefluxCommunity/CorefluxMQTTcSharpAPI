@@ -1,17 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+	<TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>CorefluxMQTTcSharpAPI</AssemblyName>
-    <ApplicationIcon>coreflux-icon.ico</ApplicationIcon>
-    <Version>1.1.0.1</Version>
+    <ApplicationIcon></ApplicationIcon>
+    <Version>1.1.0.3</Version>
     <Company>Coreflux</Company>
     <Product>CorefluxMQTT</Product>
     <Authors>Setlevel</Authors>
     <Copyright>Setlevel 2019 - 2021</Copyright>
-    <PackageIcon>coreflux-icon.ico</PackageIcon>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
+    <PackageIcon>CF.png</PackageIcon>
+    <AssemblyVersion>1.1.0.3</AssemblyVersion>
+    <FileVersion>1.1.0.3</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>coreflux.org</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CorefluxCommunity/CorefluxMQTTcSharpAPI</RepositoryUrl>
+    <Description>This package enables MQTT communication within your solutions. With a managed mqtt client.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -24,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\coreflux-icon.ico">
+    <None Include="Image\CF.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

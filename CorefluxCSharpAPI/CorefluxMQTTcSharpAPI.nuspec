@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Setlevel</authors>
+    <owners>Setlevel</owners>
+    <licenseUrl>http://coreflux.org</licenseUrl>
+    <projectUrl>http://coreflux.org</projectUrl>
+    <iconUrl>https://pasteboard.co/JAI4z3q.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes> </releaseNotes>
+    <copyright>Copyright 2019- 2021 Coreflux/Setlevel</copyright>
+    <tags>PLC IOT</tags>
+  </metadata>
+</package>

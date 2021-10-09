@@ -1,11 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "BFzf4yqgyL5ag0wx/efh0+qSgYMIEhLi1uB6W68OVwum7YMQfbqeWBGoTQ6KX6GR32GfkcBZkreOVecCDwiSTg==",
+  "dgSpecHash": "gSKN/29PN9O8gPA+Mp1F2HfWxE4F7hXPMi6RtMLr4JmUlCJp57jglcZfimZVDX4OqZlsYZu9xcqbKIguQYSO0g==",
   "success": true,
   "projectFilePath": "D:\\Docs\\Setlevel\\Produtos\\CorefluxCommunity\\APIs\\C#\\corefluxmqttcsharpapi\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet\\3.0.16\\mqttnet.3.0.16.nupkg.sha512",
-    "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet.extensions.managedclient\\3.0.16\\mqttnet.extensions.managedclient.3.0.16.nupkg.sha512"
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet.extensions.managedclient\\3.0.16\\mqttnet.extensions.managedclient.3.0.16.nupkg.sha512",
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
   ],
   "logs": []
 }
