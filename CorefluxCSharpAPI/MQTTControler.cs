@@ -5,22 +5,38 @@ using MQTTnet;
 using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Options;
-using MQTTnet.Extensions.ManagedClient;
+using MQTTnet.Client;
 using System;
 using System.Text;
 using System.Net;
 using Random = System.Random;
 
-namespace Coreflux.API.cSharp.Networking.MQTT
+namespace Coreflux.API.Networking.MQTT
 {
+    /// <summary>
+    /// A managed MQTT client (version 3.1 / 3.11 / 5 )
+    /// </summary>
     public static class MQTTController
     {
-
+        /// <summary>
+        /// Event Triggered if connected to Broker
+        /// </summary>
         public static event Action OnConnect;
-        public static event Action OnConnectFailed;
+        /// <summary>
+        /// Event Triggered if disconnected from Broker
+        /// </summary>
         public static event Action OnDisconnect;
-        public static event Action<string, string> NewPayload;
+        /// <summary>
+        /// Use GetDataAsync to map a subscription in order to trigger a payload . Replies using an MQTTNewPayload
+        /// </summary>
+        public static event Action<MQTTNewPayload> NewPayload;
+        /// <summary>
+        /// The client Name for the 
+        /// </summary>
         public static string ClientName { get; set; }
+        /// <summary>
+        /// PresistentCOnnection remembers the topics , QOS and last data even if disconnect. When a Start is run again it uses the old Data.
+        /// </summary>
         public static bool PersistentConnection { get; set; }
 
         private static string Uri;
@@ -33,19 +49,21 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         private static Dictionary<string, string> Data;
         private static Dictionary<string, int> DataQosLevel;
 
-        private static IManagedMqttClient _mqttClient;
+        private static IMqttClient _mqttClient;
         /// <summary>
         /// Initialize the global  MQTT client
         /// </summary>
+        [Obsolete("Start is deprecated, please use StartAsync instead.")]
         public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
         {
 
             Random Random = new Random();
             int randInt = Random.Next();
-            ClientName += "_" + randInt;
+            //       ClientName += "_" + randInt;
+
             try
             {
-                // MQTTClient = new MQTTClient(IPAddress.Parse(IP), port, false, null);
+
                 if (Data == null)
                 {
                     Data = new Dictionary<string, string>();
@@ -58,8 +76,8 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
 
-                var ConnectTask= ConnectAsync();
-                ConnectTask.Wait(2000);
+                var ConnectTask = ConnectAsync();
+
 
                 if (PersistentConnection)
                 {
@@ -82,7 +100,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
             Random Random = new Random();
             int randInt = Random.Next();
-            ClientName += "_" + randInt;
+            //     ClientName += "_" + randInt;
             try
             {
 
@@ -117,7 +135,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
 
         }
         /// <summary>
-        /// 
+        /// Reaction to disconnection
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -136,11 +154,12 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="payload"></param>
         /// <param name="QosLevel"></param>
         /// <param name="Retain"></param>
+        [Obsolete("Publish is deprecated, please use PublishAsync instead.")]
         private static void Publish(string topic, string payload, int QosLevel = 0, bool Retain = false)
         {
             if (Connected())
             {
-                var pub = PublishAsync(topic, payload, Retain, QosLevel);
+                var pub = PublishA(topic, payload, Retain, QosLevel);
                 pub.Wait(1);
             }
         }
@@ -151,38 +170,39 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="payload"></param>
         /// <param name="QosLevel"></param>
         /// <param name="Retain"></param>
-        private static async Task PublishAsy(string topic, string payload, int QosLevel = 0, bool Retain = false)
+        private static async Task PublishAsync(string topic, string payload, int QosLevel = 0, bool Retain = false)
         {
             if (Connected())
             {
-                await PublishAsync(topic, payload, Retain, QosLevel);
+                var t = await PublishA(topic, payload, Retain, QosLevel);
 
             }
         }
         /// <summary>
-        /// 
+        /// Subscribes to a topic
         /// </summary>
         /// <param name="topic"></param>
         /// <param name="QosLevel"></param>
+        [Obsolete("Subscribe is deprecated, please use SubscribeAsync instead.")]
         private static void Subscribe(string topic, int QosLevel)
         {
             if (Connected())
             {
-                var sub=SubscribeAsync(topic, QosLevel);
+                var sub = SubscribeA(topic, QosLevel);
                 sub.Wait(50);
                 AddTopicToData(topic, QosLevel);
             }
         }
         /// <summary>
-        /// 
+        /// Subscribes Asyncronsly to a certain topic
         /// </summary>
         /// <param name="topic"></param>
         /// <param name="QosLevel"></param>
-        private static async Task SubscribeAsy(string topic, int QosLevel)
+        private static async Task SubscribeAsync(string topic, int QosLevel)
         {
             if (Connected())
             {
-                await SubscribeAsync(topic, QosLevel);
+                await SubscribeA(topic, QosLevel);
 
                 AddTopicToData(topic, QosLevel);
             }
@@ -193,7 +213,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="topic"></param>
         /// <param name="qos"></param>
         /// <returns></returns>
-        private static async Task SubscribeAsync(string topic, int qos = 1) => await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)qos).Build());
+        private static async Task SubscribeA(string topic, int qos = 1) => await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)qos).Build());
         /// <summary>
         /// Publish Message.
         /// </summary>
@@ -202,12 +222,15 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="retainFlag">Retain flag.</param>
         /// <param name="qos">Quality of Service.</param>
         /// <returns>Task.</returns>
-        private static async Task PublishAsync(string topic, string payload, bool retainFlag = true, int qos = 1) => await _mqttClient.PublishAsync(new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(payload).WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)qos).WithRetainFlag(retainFlag).Build());
+        private static async Task<MQTTnet.Client.Publishing.MqttClientPublishResult> PublishA(string topic, string payload, bool retainFlag = true, int qos = 1)
+        {
+            return await _mqttClient.PublishAsync(topic, payload, (MQTTnet.Protocol.MqttQualityOfServiceLevel)qos, retainFlag);
+        }
         /// <summary>
-        /// 
+        /// Adds topics to data Array
         /// </summary>
-        /// <param name="topic"></param>
-        /// <param name="qoslevel"></param>
+        /// <param name="topic">topic </param>
+        /// <param name="qoslevel">level of Qauality of service</param>
         private static void AddTopicToData(string topic, int qoslevel)
         {
             if (!Data.ContainsKey(topic))
@@ -259,18 +282,16 @@ namespace Coreflux.API.cSharp.Networking.MQTT
               : messageBuilder
                 .Build();
 
-            var managedOptions = new ManagedMqttClientOptionsBuilder()
-              .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
-              .WithClientOptions(options)
-              .Build();
 
-            _mqttClient = new MqttFactory().CreateManagedMqttClient();
 
+            var factory = new MqttFactory();
+            _mqttClient = factory.CreateMqttClient();
             _mqttClient.ConnectedHandler = new MqttClientConnectedHandlerDelegate(OnConnected);
             _mqttClient.DisconnectedHandler = new MqttClientDisconnectedHandlerDelegate(OnDisconnected);
-            _mqttClient.ConnectingFailedHandler = new ConnectingFailedHandlerDelegate(OnConnectingFailed);
+            //   _mqttClient.ConnectingFailedHandler = new ConnectingFailedHandlerDelegate(OnConnectingFailed);
 
-            _mqttClient.UseApplicationMessageReceivedHandler(e => {
+            _mqttClient.UseApplicationMessageReceivedHandler(e =>
+            {
 
                 try
                 {
@@ -283,7 +304,10 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                         {
                             Data[topic] = payload;
                         }
-                        NewPayload?.Invoke(topic, payload);
+                        MQTTNewPayload t = new MQTTNewPayload();
+                        t.topic = topic;
+                        t.payload = payload;
+                        NewPayload?.Invoke(t);
                     }
                 }
                 catch (Exception ex)
@@ -292,18 +316,13 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 }
             });
 
-            var teste = _mqttClient.StartAsync(managedOptions);
-            teste.Wait(3000);
+            await _mqttClient.ConnectAsync(options);
+
         }
         private static void OnConnected(MqttClientConnectedEventArgs obj)
         {
             if (OnConnect != null)
                 OnConnect.Invoke();
-        }
-        private static void OnConnectingFailed(ManagedProcessFailedEventArgs obj)
-        {
-            if (OnConnectFailed != null)
-                OnConnectFailed.Invoke();
         }
         private static void OnDisconnected(MqttClientDisconnectedEventArgs obj)
         {
@@ -320,19 +339,20 @@ namespace Coreflux.API.cSharp.Networking.MQTT
             return _mqttClient.IsConnected;
         }
         /// <summary>
-        /// Stops the client and disconnects entirelly to  the broker
+        /// Stops the managed client and disconnects entirelly to  the broker
         /// </summary>
-        public static void Stop()
+        public static async Task StopAsync()
         {
-            _mqttClient.StopAsync();
+            await _mqttClient.DisconnectAsync();
         }
         /// <summary>
-        /// Publishses the topics
+        /// Publishses the topics 
         /// </summary>
         /// <param name="topic">The topic it is required to publish </param>
         /// <param name="payload">The payload required to publish </param>
         /// <param name="qoslevel">The level of quality of service 0,1,2</param>
         /// <param name="retain">If the topic will be retain or not on the broker True/False</param>
+        [Obsolete("SetData is deprecated, please use SetDataAsync instead.")]
         public static void SetData(string topic, string payload, int qoslevel = 0, bool retain = false)
         {
             if (Connected())
@@ -367,7 +387,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 if (Data.ContainsKey(topic))
                 {
                     Data[topic] = payload;
-                    await PublishAsy(topic, payload, qoslevel, retain);
+                    await PublishAsync(topic, payload, qoslevel, retain);
 
                 }
                 else
@@ -375,7 +395,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                     //Subscribe(topic, qoslevel);
                     AddTopicToData(topic, qoslevel);
                     Data[topic] = payload;
-                    await PublishAsy(topic, payload, qoslevel, retain);
+                    await PublishAsync(topic, payload, qoslevel, retain);
 
                 }
             }
@@ -386,6 +406,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
         /// <param name="topic">The topic it is required to publish </param>
         /// <param name="qoslevel">The quality of service required 0,1,2</param>
         /// <returns>The last payload received in hte topic</returns>
+        [Obsolete("GetData is deprecated, please use GetDataAsync instead.")]
         public static string GetData(string topic, int qoslevel = 0)
         {
             if (Connected())
@@ -405,15 +426,13 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 return "";
             }
         }
-
-
         /// <summary>
         /// Gets topic data Async mode
         /// </summary>
         /// <param name="topic">The topic it is required to publish </param>
         /// <param name="qoslevel">The quality of service required 0,1,2</param>
         /// <returns>The last payload received in hte topic</returns>
-        public static async Task<string> GetDataAsync(string topic,int qoslevel=0)
+        public static async Task<string> GetDataAsync(string topic, int qoslevel = 0)
         {
             if (Connected())
             {
@@ -423,7 +442,7 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 }
                 else
                 {
-                    await SubscribeAsy(topic, qoslevel);
+                    await SubscribeAsync(topic, qoslevel);
                     return "";
                 }
             }
@@ -432,6 +451,21 @@ namespace Coreflux.API.cSharp.Networking.MQTT
                 return "";
             }
         }
+    }
+
+    /// <summary>
+    /// Reply from subscription from NewPayload event 
+    /// </summary>
+    public class MQTTNewPayload
+    {
+        /// <summary>
+        /// The topic of the NewPayload received
+        /// </summary>
+        public string topic;
+        /// <summary>
+        /// The payload received 
+        /// </summary>
+        public string payload;
     }
     [Serializable]
     class ConnectionFailBrokerException : Exception
