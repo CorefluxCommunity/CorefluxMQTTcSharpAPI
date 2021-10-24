@@ -4,14 +4,14 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>CorefluxMQTTcSharpAPI</AssemblyName>
     <ApplicationIcon></ApplicationIcon>
-    <Version>1.1.0.3</Version>
+    <Version>1.2.0.0</Version>
     <Company>Coreflux</Company>
     <Product>CorefluxMQTT</Product>
     <Authors>Setlevel</Authors>
     <Copyright>Setlevel 2019 - 2021</Copyright>
     <PackageIcon>CF.png</PackageIcon>
-    <AssemblyVersion>1.1.0.3</AssemblyVersion>
-    <FileVersion>1.1.0.3</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>coreflux.org</PackageProjectUrl>
@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <PackageReference Include="MQTTnet" Version="3.0.16" />
-    <PackageReference Include="MQTTnet.Extensions.ManagedClient" Version="3.0.16" />
   </ItemGroup>
 
   <ItemGroup>

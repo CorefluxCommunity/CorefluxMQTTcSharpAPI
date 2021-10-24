@@ -4,24 +4,54 @@
         <name>CorefluxMQTTcSharpAPI</name>
     </assembly>
     <members>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.Start(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="T:Coreflux.API.Networking.MQTT.MQTTController">
+            <summary>
+            A managed MQTT client (version 3.1 / 3.11 / 5 )
+            </summary>
+        </member>
+        <member name="E:Coreflux.API.Networking.MQTT.MQTTController.OnConnect">
+            <summary>
+            Event Triggered if connected to Broker
+            </summary>
+        </member>
+        <member name="E:Coreflux.API.Networking.MQTT.MQTTController.OnDisconnect">
+            <summary>
+            Event Triggered if disconnected from Broker
+            </summary>
+        </member>
+        <member name="E:Coreflux.API.Networking.MQTT.MQTTController.NewPayload">
+            <summary>
+            Use GetDataAsync to map a subscription in order to trigger a payload . Replies using an MQTTNewPayload
+            </summary>
+        </member>
+        <member name="P:Coreflux.API.Networking.MQTT.MQTTController.ClientName">
+            <summary>
+            The client Name for the 
+            </summary>
+        </member>
+        <member name="P:Coreflux.API.Networking.MQTT.MQTTController.PersistentConnection">
+            <summary>
+            PresistentCOnnection remembers the topics , QOS and last data even if disconnect. When a Start is run again it uses the old Data.
+            </summary>
+        </member>
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.Start(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
             Initialize the global  MQTT client
             </summary>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.StartAsync(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.StartAsync(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
             Initialize the global  MQTT client asyncrounsly
             </summary>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.client_MQTTMsgDisconnected">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.client_MQTTMsgDisconnected">
             <summary>
-            
+            Reaction to disconnection
             </summary>
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.Publish(System.String,System.String,System.Int32,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.Publish(System.String,System.String,System.Int32,System.Boolean)">
             <summary>
             Publishes a retain topic payload
             </summary>
@@ -30,7 +60,7 @@
             <param name="QosLevel"></param>
             <param name="Retain"></param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.PublishAsy(System.String,System.String,System.Int32,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.PublishAsync(System.String,System.String,System.Int32,System.Boolean)">
             <summary>
             Publishes a retain topic payload async
             </summary>
@@ -39,21 +69,21 @@
             <param name="QosLevel"></param>
             <param name="Retain"></param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.Subscribe(System.String,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.Subscribe(System.String,System.Int32)">
             <summary>
-            
+            Subscribes to a topic
             </summary>
             <param name="topic"></param>
             <param name="QosLevel"></param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.SubscribeAsy(System.String,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.SubscribeAsync(System.String,System.Int32)">
             <summary>
-            
+            Subscribes Asyncronsly to a certain topic
             </summary>
             <param name="topic"></param>
             <param name="QosLevel"></param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.SubscribeAsync(System.String,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.SubscribeA(System.String,System.Int32)">
             <summary>
             Subscribes Async the topic
             </summary>
@@ -61,7 +91,7 @@
             <param name="qos"></param>
             <returns></returns>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.PublishAsync(System.String,System.String,System.Boolean,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.PublishA(System.String,System.String,System.Boolean,System.Int32)">
             <summary>
             Publish Message.
             </summary>
@@ -71,40 +101,40 @@
             <param name="qos">Quality of Service.</param>
             <returns>Task.</returns>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.AddTopicToData(System.String,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.AddTopicToData(System.String,System.Int32)">
             <summary>
-            
+            Adds topics to data Array
             </summary>
-            <param name="topic"></param>
-            <param name="qoslevel"></param>
+            <param name="topic">topic </param>
+            <param name="qoslevel">level of Qauality of service</param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.ConnectAsync">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.ConnectAsync">
             <summary>
             Connect to broker aysnc and construct the handled client
             </summary>
             <returns>Task.</returns>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.Connected">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.Connected">
             <summary>
             Verifies the connection to broker
             </summary>
             <returns>True if connected to broker</returns>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.Stop">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.StopAsync">
             <summary>
-            Stops the client and disconnects entirelly to  the broker
+            Stops the managed client and disconnects entirelly to  the broker
             </summary>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.SetData(System.String,System.String,System.Int32,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.SetData(System.String,System.String,System.Int32,System.Boolean)">
             <summary>
-            Publishses the topics
+            Publishses the topics 
             </summary>
             <param name="topic">The topic it is required to publish </param>
             <param name="payload">The payload required to publish </param>
             <param name="qoslevel">The level of quality of service 0,1,2</param>
             <param name="retain">If the topic will be retain or not on the broker True/False</param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.SetDataAsync(System.String,System.String,System.Int32,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.SetDataAsync(System.String,System.String,System.Int32,System.Boolean)">
             <summary>
             Publishses the topics  async
             </summary>
@@ -113,7 +143,7 @@
             <param name="qoslevel">The level of quality of service 0,1,2</param>
             <param name="retain">If the topic will be retain or not on the broker True/False</param>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.GetData(System.String,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.GetData(System.String,System.Int32)">
             <summary>
             Gets the topics we are subscribed and provides the last received values
             </summary>
@@ -121,13 +151,28 @@
             <param name="qoslevel">The quality of service required 0,1,2</param>
             <returns>The last payload received in hte topic</returns>
         </member>
-        <member name="M:Coreflux.API.cSharp.Networking.MQTT.MQTTController.GetDataAsync(System.String,System.Int32)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.GetDataAsync(System.String,System.Int32)">
             <summary>
             Gets topic data Async mode
             </summary>
             <param name="topic">The topic it is required to publish </param>
             <param name="qoslevel">The quality of service required 0,1,2</param>
             <returns>The last payload received in hte topic</returns>
+        </member>
+        <member name="T:Coreflux.API.Networking.MQTT.MQTTNewPayload">
+            <summary>
+            Reply from subscription from NewPayload event 
+            </summary>
+        </member>
+        <member name="F:Coreflux.API.Networking.MQTT.MQTTNewPayload.topic">
+            <summary>
+            The topic of the NewPayload received
+            </summary>
+        </member>
+        <member name="F:Coreflux.API.Networking.MQTT.MQTTNewPayload.payload">
+            <summary>
+            The payload received 
+            </summary>
         </member>
     </members>
 </doc>

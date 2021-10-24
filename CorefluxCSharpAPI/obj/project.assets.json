@@ -20,18 +20,6 @@
           "lib/netstandard2.0/MQTTnet.dll": {}
         }
       },
-      "MQTTnet.Extensions.ManagedClient/3.0.16": {
-        "type": "package",
-        "dependencies": {
-          "MQTTnet": "3.0.16"
-        },
-        "compile": {
-          "lib/netstandard2.0/MQTTnet.Extensions.ManagedClient.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/MQTTnet.Extensions.ManagedClient.dll": {}
-        }
-      },
       "NETStandard.Library/2.0.3": {
         "type": "package",
         "dependencies": {
@@ -90,31 +78,6 @@
         "lib/uap10.0/MQTTnet.pri",
         "mqttnet.3.0.16.nupkg.sha512",
         "mqttnet.nuspec"
-      ]
-    },
-    "MQTTnet.Extensions.ManagedClient/3.0.16": {
-      "sha512": "rjtHYtYf+1JNLksZrKp2dvgT5pYe5+XTAoF8koRlK3s+kkUFykSecSleH7QCTaaPWCy8N7xoTSXS1v94pYGzhw==",
-      "type": "package",
-      "path": "mqttnet.extensions.managedclient/3.0.16",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE",
-        "images/Logo_128x128.png",
-        "lib/net452/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/net461/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/net5.0/MQTTnet.Extensions.ManagedClient.deps.json",
-        "lib/net5.0/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/netstandard1.3/MQTTnet.Extensions.ManagedClient.deps.json",
-        "lib/netstandard1.3/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/netstandard2.0/MQTTnet.Extensions.ManagedClient.deps.json",
-        "lib/netstandard2.0/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/netstandard2.1/MQTTnet.Extensions.ManagedClient.deps.json",
-        "lib/netstandard2.1/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/uap10.0/MQTTnet.Extensions.ManagedClient.dll",
-        "lib/uap10.0/MQTTnet.Extensions.ManagedClient.pri",
-        "mqttnet.extensions.managedclient.3.0.16.nupkg.sha512",
-        "mqttnet.extensions.managedclient.nuspec"
       ]
     },
     "NETStandard.Library/2.0.3": {
@@ -250,7 +213,6 @@
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.0": [
       "MQTTnet >= 3.0.16",
-      "MQTTnet.Extensions.ManagedClient >= 3.0.16",
       "NETStandard.Library >= 2.0.3"
     ]
   },
@@ -259,7 +221,7 @@
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
-    "version": "1.1.0.3",
+    "version": "1.2.0",
     "restore": {
       "projectUniqueName": "D:\\Docs\\Setlevel\\Produtos\\CorefluxCommunity\\APIs\\C#\\corefluxmqttcsharpapi\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
       "projectName": "CorefluxMQTTcSharpAPI",
@@ -299,10 +261,6 @@
         "targetAlias": "netstandard2.0",
         "dependencies": {
           "MQTTnet": {
-            "target": "Package",
-            "version": "[3.0.16, )"
-          },
-          "MQTTnet.Extensions.ManagedClient": {
             "target": "Package",
             "version": "[3.0.16, )"
           },

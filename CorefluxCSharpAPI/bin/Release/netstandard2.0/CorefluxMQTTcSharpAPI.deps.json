@@ -7,10 +7,9 @@
   "targets": {
     ".NETStandard,Version=v2.0": {},
     ".NETStandard,Version=v2.0/": {
-      "CorefluxMQTTcSharpAPI/1.1.0.3": {
+      "CorefluxMQTTcSharpAPI/1.2.0.0": {
         "dependencies": {
           "MQTTnet": "3.0.16",
-          "MQTTnet.Extensions.ManagedClient": "3.0.16",
           "NETStandard.Library": "2.0.3"
         },
         "runtime": {
@@ -26,17 +25,6 @@
           }
         }
       },
-      "MQTTnet.Extensions.ManagedClient/3.0.16": {
-        "dependencies": {
-          "MQTTnet": "3.0.16"
-        },
-        "runtime": {
-          "lib/netstandard2.0/MQTTnet.Extensions.ManagedClient.dll": {
-            "assemblyVersion": "3.0.16.0",
-            "fileVersion": "3.0.16.0"
-          }
-        }
-      },
       "NETStandard.Library/2.0.3": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0"
@@ -45,7 +33,7 @@
     }
   },
   "libraries": {
-    "CorefluxMQTTcSharpAPI/1.1.0.3": {
+    "CorefluxMQTTcSharpAPI/1.2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -63,13 +51,6 @@
       "sha512": "sha512-xzqmKwVjTpT/X5zoLuhBCHmYVSRAlxeXqExvHLqfbt5OfTHfrD/q62IteJbOtlNG/SepeRpm76dYUZSU5o8y1A==",
       "path": "mqttnet/3.0.16",
       "hashPath": "mqttnet.3.0.16.nupkg.sha512"
-    },
-    "MQTTnet.Extensions.ManagedClient/3.0.16": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-rjtHYtYf+1JNLksZrKp2dvgT5pYe5+XTAoF8koRlK3s+kkUFykSecSleH7QCTaaPWCy8N7xoTSXS1v94pYGzhw==",
-      "path": "mqttnet.extensions.managedclient/3.0.16",
-      "hashPath": "mqttnet.extensions.managedclient.3.0.16.nupkg.sha512"
     },
     "NETStandard.Library/2.0.3": {
       "type": "package",

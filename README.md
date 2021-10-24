@@ -1,15 +1,17 @@
-# Coreflux API 
+
+[![NuGet Badge](https://buildstats.info/nuget/CorefluxMQTTcSharpAPI)](https://www.nuget.org/packages/CorefluxMQTTcSharpAPI/)
+# Coreflux C# API 
 This nuget package is resposible for all integration with C# and Coreflux. 
 
 
-# Coreflux MQTT
+# Coreflux MQTT Managed client 
 
-The MQTT namespace enables MQTT communication within your development. 
+The MQTT namespace enables MQTT communication within your development.  There is already in place an MQTT Managed client.
 
 ## Usage
 
  - Add the necessary namespaces in your project
-	 `using Coreflux.API.cSharp.Networking.MQTT;`
+	 `using Coreflux.API.Networking.MQTT;`
 	 
  - Call the managed mqtt client from Coreflux 
   ` MQTTController.Start("127.0.0.1", 1883);` //using IP with normal  TCP/IP socket
@@ -26,7 +28,22 @@ The MQTT namespace enables MQTT communication within your development.
 > This is synchronous usage
    - Publish
   ` MQTTController.SetData("mytopic/teste", "payload", 0, false);` // Publishes the value to the topic with the payload . In this case without retain(false) and QOS 0.
-  
+
+## System Compatibility
+
+ - Windows 11 (pre-release tested) , 10, IoT , 7 
+ - Linux ( Ubuntu , Raspian, Debian,etc..)
+ - Android (Phones,SmartTVs)
+ - IOs
+ - macOS
+ 
+## Protocols
+ - MQTT 3.1  / 3.1.1 /5.00 
+
+
+## Nuget 
+
+There is a nuget package available [Coreflux Nuget ](https://www.nuget.org/packages/CorefluxMQTTcSharpAPI/) 
 
 ## Author
 ![Coreflux](https://i.imgur.com/JdvJkGY.png)
