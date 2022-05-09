@@ -7,5 +7,4 @@ D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\Corefl
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.csproj.CoreCompileInputs.cache
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxMQTTcSharpAPI.dll
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxMQTTcSharpAPI.pdb
-D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.csproj.AssemblyReference.cache
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.GeneratedMSBuildEditorConfig.editorconfig

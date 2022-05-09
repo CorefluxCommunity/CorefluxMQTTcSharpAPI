@@ -11,35 +11,45 @@ namespace ClientSampleBackgroundService
 {
     public class Worker : BackgroundService
     {
+        private bool AlreadyConnectedOneTime;
         private readonly ILogger<Worker> _logger;
         private MQTTControllerInstance MQTTControllerInstance;
         public bool isConnected;
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            MQTTControllerInstance = new MQTTControllerInstance();
-            MQTTControllerInstance.OnConnect += MQTTControllerInstance_OnConnect;
-            MQTTControllerInstance.OnDisconnect += MQTTControllerInstance_OnDisconnect;
-            MQTTControllerInstance.NewPayload += MQTTControllerInstance_NewPayload;
+            //MQTTController = new MQTTControllerInstance();
+            MQTTController.OnConnect += MQTTControllerInstance_OnConnect;
+            MQTTController.OnDisconnect += MQTTControllerInstance_OnDisconnect;
+            MQTTController.NewPayload += MQTTControllerInstance_NewPayload;
+            MQTTController.PersistentConnection = true;
+            AlreadyConnectedOneTime = false;
             isConnected = false;
         }
 
+
         private void MQTTControllerInstance_NewPayload(MQTTNewPayload obj)
         {
-            _logger.LogInformation("received" + obj.topic+ " , "+ obj.payload +" @ {time} ", DateTimeOffset.Now);
+            _logger.LogInformation("received" + obj.topic + " , " + obj.payload + " @ {time} ", DateTimeOffset.Now);
         }
 
         private void MQTTControllerInstance_OnDisconnect()
         {
             _logger.LogInformation("Disconnected of broker {time}", DateTimeOffset.Now);
             isConnected = false;
-        //    ReConnect();
+            //    ReConnect();
 
         }
 
         private void MQTTControllerInstance_OnConnect()
         {
             _logger.LogInformation("Connected to broker {time}", DateTimeOffset.Now);
+            if (!AlreadyConnectedOneTime)
+            {
+                var t = MQTTController.GetDataAsync("teste").GetAwaiter();
+                t = MQTTController.GetDataAsync("HV/teste").GetAwaiter();
+            }
+            AlreadyConnectedOneTime = true;
             isConnected = true;
         }
 
@@ -47,7 +57,7 @@ namespace ClientSampleBackgroundService
         {
             try
             {
-                await MQTTControllerInstance.StartAsync("127.0.0.1");
+                await MQTTController.StartAsync("127.0.0.1");
             }
             catch
             {
@@ -58,36 +68,38 @@ namespace ClientSampleBackgroundService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            try { 
-            await MQTTControllerInstance.StartAsync("127.0.0.1");
+            try
+            {
+                await MQTTController.StartAsync("127.0.0.1");
             }
             catch
-                {
+            {
                 _logger.LogInformation("Failed to find the  broker {time}", DateTimeOffset.Now);
             }
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                if(isConnected)
+                if (isConnected)
                 {
-                 
-                    await MQTTControllerInstance.SetDataAsync("teste", "1234");
-                    var t=MQTTControllerInstance.GetDataAsync("teste").GetAwaiter();
-                    var q= t.GetResult();
+
+                    await MQTTController.SetDataAsync("teste", "1234");
+
+                    var t = MQTTController.GetDataAsync("teste").GetAwaiter();
+                    var q = t.GetResult();
                     _logger.LogInformation("received" + q + " @ {time} ", DateTimeOffset.Now);
                 }
-                else
-                {
-                    try
-                    {
-                        await MQTTControllerInstance.StartAsync("127.0.0.1");
-                    }
-                    catch
-                    {
-                        _logger.LogInformation("Failed to find the  broker {time}", DateTimeOffset.Now);
-                    }
-                }
-                await Task.Delay(10000, stoppingToken);
+                //else
+                //{
+                //    try
+                //    {
+                //        await MQTTControllerInstance.StartAsync("127.0.0.1");
+                //    }
+                //    catch
+                //    {
+                //        _logger.LogInformation("Failed to find the  broker {time}", DateTimeOffset.Now);
+                //    }
+                //}
+                await Task.Delay(10, stoppingToken);
             }
         }
     }

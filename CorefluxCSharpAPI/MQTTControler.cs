@@ -83,7 +83,7 @@ namespace Coreflux.API.Networking.MQTT
                 {
                     foreach (KeyValuePair<string, string> entry in Data)
                     {
-                        Subscribe(entry.Key, DataQosLevel[entry.Key],false);
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
                     }
                 }
             }
@@ -117,14 +117,22 @@ namespace Coreflux.API.Networking.MQTT
                 WithWS = usingWebSocket;
 
 
-                if (PersistentConnection)
+
+                try
                 {
-                    foreach (KeyValuePair<string, string> entry in Data)
+                    await ConnectAsync();
+                    if (PersistentConnection)
                     {
-                        Subscribe(entry.Key, DataQosLevel[entry.Key],false);
+                        foreach (KeyValuePair<string, string> entry in Data)
+                        {
+                            Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                        }
                     }
                 }
-                await ConnectAsync();
+                catch
+                {
+
+                }
             }
             catch
             {
@@ -137,12 +145,36 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private static void client_MQTTMsgDisconnected()
+        private static async void client_MQTTMsgDisconnected()
         {
             if (!PersistentConnection)
             {
                 Data.Clear();
                 DataQosLevel.Clear();
+            }
+            else
+            {
+                Task ConnectCheck = ConnectAsync();
+                ConnectCheck.Wait();
+                if (ConnectCheck.IsCompleted)
+                {
+                    Task.Delay(500);
+                }
+                else if (ConnectCheck.IsFaulted)
+                {
+                    Task.Delay(500);
+                }
+                else
+                {
+                    Task.Delay(500);
+                }
+                if (PersistentConnection)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data)
+                    {
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                    }
+                }
             }
         }
         /// <summary>
@@ -182,13 +214,13 @@ namespace Coreflux.API.Networking.MQTT
         /// <param name="topic"></param>
         /// <param name="QosLevel"></param>
         [Obsolete("Subscribe is deprecated, please use SubscribeAsync instead.")]
-        private static void Subscribe(string topic, int QosLevel,bool Forced)
+        private static void Subscribe(string topic, int QosLevel, bool Forced)
         {
             if (Connected())
             {
                 var sub = SubscribeA(topic, QosLevel);
                 sub.Wait(50);
-                if(!Forced)
+                if (!Forced)
                     AddTopicToData(topic, QosLevel);
             }
         }
@@ -262,7 +294,9 @@ namespace Coreflux.API.Networking.MQTT
             var messageBuilder = new MqttClientOptionsBuilder()
               .WithClientId(clientId)
               .WithCredentials(mqttUser, mqttPassword)
-              .WithCleanSession();
+              .WithCleanSession()
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 8));
+
             if (WithWS)
             {
                 messageBuilder.WithWebSocketServer(mqttURI);
@@ -313,7 +347,15 @@ namespace Coreflux.API.Networking.MQTT
                 }
             });
 
-            await _mqttClient.ConnectAsync(options);
+            try
+            {
+                await _mqttClient.ConnectAsync(options);
+            }
+            catch
+            {
+
+            }
+
 
         }
         private static void OnConnected(MqttClientConnectedEventArgs obj)
@@ -333,7 +375,16 @@ namespace Coreflux.API.Networking.MQTT
         /// <returns>True if connected to broker</returns>
         public static bool Connected()
         {
-            return _mqttClient.IsConnected;
+            bool returner = false;
+            try
+            {
+                returner = _mqttClient.IsConnected;
+            }
+            catch
+            {
+                return returner;
+            }
+            return returner;
         }
         /// <summary>
         /// Stops the managed client and disconnects entirelly to  the broker
@@ -415,7 +466,7 @@ namespace Coreflux.API.Networking.MQTT
                 }
                 else
                 {
-                    Subscribe(topic, qoslevel,ForceSubscribe);
+                    Subscribe(topic, qoslevel, ForceSubscribe);
                     return "";
                 }
             }
@@ -431,7 +482,7 @@ namespace Coreflux.API.Networking.MQTT
         /// <param name="qoslevel">The quality of service required 0,1,2</param>
         /// <param name="ForceSubscribe">True to force subscribe command to broker</param>
         /// <returns>The last payload received in hte topic</returns>
-        public static async Task<string> GetDataAsync(string topic, int qoslevel = 0,bool ForceSubscribe=false)
+        public static async Task<string> GetDataAsync(string topic, int qoslevel = 0, bool ForceSubscribe = false)
         {
             if (Connected())
             {
@@ -489,17 +540,17 @@ namespace Coreflux.API.Networking.MQTT
         private Dictionary<string, string> Data;
         private Dictionary<string, int> DataQosLevel;
 
-        private  IMqttClient _mqttClient;
+        private IMqttClient _mqttClient;
 
         /// <summary>
         /// Initialize the global  MQTT client asyncrounsly
         /// </summary>
-        public  async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
+        public async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
         {
 
             Random Random = new Random();
             int randInt = Random.Next();
-            //     ClientName += "_" + randInt;
+            ClientName += "_" + randInt;
             try
             {
 
@@ -516,8 +567,7 @@ namespace Coreflux.API.Networking.MQTT
                 WithWS = usingWebSocket;
 
 
-
-
+                await ConnectAsync();
                 if (PersistentConnection)
                 {
                     foreach (KeyValuePair<string, string> entry in Data)
@@ -525,7 +575,6 @@ namespace Coreflux.API.Networking.MQTT
                         Subscribe(entry.Key, DataQosLevel[entry.Key], false);
                     }
                 }
-                await ConnectAsync();
             }
             catch
             {
@@ -538,12 +587,36 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void client_MQTTMsgDisconnected()
+        private async void client_MQTTMsgDisconnected()
         {
             if (!PersistentConnection)
             {
                 Data.Clear();
                 DataQosLevel.Clear();
+            }
+            else
+            {
+                Task ConnectCheck = ConnectAsync();
+                ConnectCheck.Wait();
+                if (ConnectCheck.IsCompleted)
+                {
+                    Task.Delay(500);
+                }
+                else if (ConnectCheck.IsFaulted)
+                {
+                    Task.Delay(500);
+                }
+                else
+                {
+                    Task.Delay(500);
+                }
+                if (PersistentConnection)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data)
+                    {
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                    }
+                }
             }
         }
         /// <summary>
@@ -663,9 +736,9 @@ namespace Coreflux.API.Networking.MQTT
             var messageBuilder = new MqttClientOptionsBuilder()
               .WithClientId(clientId)
               .WithCredentials(mqttUser, mqttPassword)
-
-
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 8))
               .WithCleanSession();
+
             if (WithWS)
             {
                 messageBuilder.WithWebSocketServer(mqttURI);
@@ -715,8 +788,14 @@ namespace Coreflux.API.Networking.MQTT
                     Console.WriteLine(ex.Message, ex);
                 }
             });
+            try
+            {
+                await _mqttClient.ConnectAsync(options);
+            }
+            catch
+            {
 
-            await _mqttClient.ConnectAsync(options);
+            }
 
         }
         private void OnConnected(MqttClientConnectedEventArgs obj)
@@ -736,7 +815,16 @@ namespace Coreflux.API.Networking.MQTT
         /// <returns>True if connected to broker</returns>
         public bool Connected()
         {
-            return _mqttClient.IsConnected;
+            bool returner = false;
+            try
+            {
+                returner = _mqttClient.IsConnected;
+            }
+            catch
+            {
+                return false;
+            }
+            return returner;
         }
         /// <summary>
         /// Stops the managed client and disconnects entirelly to  the broker
@@ -746,7 +834,7 @@ namespace Coreflux.API.Networking.MQTT
             await _mqttClient.DisconnectAsync();
         }
 
-      
+
         /// <summary>
         /// Publishses the topics in an async fashion
         /// </summary>
