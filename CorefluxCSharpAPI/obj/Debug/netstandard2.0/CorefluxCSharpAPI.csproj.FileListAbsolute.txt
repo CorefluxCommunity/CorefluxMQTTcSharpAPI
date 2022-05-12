@@ -7,3 +7,13 @@ D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\Corefl
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxCSharpAPI.csproj.CoreCompileInputs.cache
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.dll
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.pdb
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.deps.json
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.dll
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.pdb
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxCSharpAPI.csproj.AssemblyReference.cache
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxCSharpAPI.GeneratedMSBuildEditorConfig.editorconfig
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxCSharpAPI.AssemblyInfoInputs.cache
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxCSharpAPI.AssemblyInfo.cs
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxCSharpAPI.csproj.CoreCompileInputs.cache
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.dll
+D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Debug\netstandard2.0\CorefluxMQTTcSharpAPI.pdb

@@ -45,6 +45,8 @@ namespace Coreflux.API.Networking.MQTT
         private static string Password;
         private static bool Secure;
         private static bool WithWS;
+        private static int KeepAlive;
+        private static int Timeout;
 
         private static Dictionary<string, string> Data;
         private static Dictionary<string, int> DataQosLevel;
@@ -54,7 +56,7 @@ namespace Coreflux.API.Networking.MQTT
         /// Initialize the global  MQTT client
         /// </summary>
         [Obsolete("Start is deprecated, please use StartAsync instead.")]
-        public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
+        public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false,int keepAlive=5,int timeOut=5)
         {
 
             Random Random = new Random();
@@ -63,7 +65,7 @@ namespace Coreflux.API.Networking.MQTT
 
             try
             {
-
+                
                 if (Data == null)
                 {
                     Data = new Dictionary<string, string>();
@@ -75,7 +77,8 @@ namespace Coreflux.API.Networking.MQTT
                 Password = password;
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
-
+                KeepAlive = keepAlive;
+                Timeout = timeOut;
                 var ConnectTask = ConnectAsync();
 
 
@@ -281,7 +284,7 @@ namespace Coreflux.API.Networking.MQTT
         /// Connect to broker aysnc and construct the handled client
         /// </summary>
         /// <returns>Task.</returns>
-        private static async Task ConnectAsync()
+        private static async Task ConnectAsync(int timeout = 5, int keepalive = 5)
         {
             string clientId = ClientName;
             string mqttURI = Uri;
@@ -290,12 +293,30 @@ namespace Coreflux.API.Networking.MQTT
             int mqttPort = Portserver;
             bool mqttSecure = Secure;
             bool websocket = WithWS;
-
+            if (timeout < 1)
+            {
+                timeout = 1;
+            }
+            if (keepalive < 1)
+            {
+                keepalive = 1;
+            }
+            if (keepalive > 30)
+            {
+                keepalive = 30;
+            }
+            if (timeout > 30)
+            {
+                timeout = 30;
+            }
             var messageBuilder = new MqttClientOptionsBuilder()
               .WithClientId(clientId)
               .WithCredentials(mqttUser, mqttPassword)
               .WithCleanSession()
-              .WithKeepAlivePeriod(new TimeSpan(0, 0, 8));
+              .WithCommunicationTimeout(new TimeSpan(0, 0, 0, timeout, 0))
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive,0));
+             
+            
 
             if (WithWS)
             {

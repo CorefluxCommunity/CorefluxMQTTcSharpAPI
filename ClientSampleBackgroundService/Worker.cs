@@ -46,8 +46,8 @@ namespace ClientSampleBackgroundService
             _logger.LogInformation("Connected to broker {time}", DateTimeOffset.Now);
             if (!AlreadyConnectedOneTime)
             {
-                var t = MQTTController.GetDataAsync("teste").GetAwaiter();
-                t = MQTTController.GetDataAsync("HV/teste").GetAwaiter();
+                //var t = MQTTController.GetDataAsync("teste").GetAwaiter();
+                var t = MQTTController.GetDataAsync("HV/RobotComFilho").GetAwaiter();
             }
             AlreadyConnectedOneTime = true;
             isConnected = true;
@@ -57,7 +57,7 @@ namespace ClientSampleBackgroundService
         {
             try
             {
-                await MQTTController.StartAsync("127.0.0.1");
+                await MQTTController.StartAsync("192.168.1.184");
             }
             catch
             {
@@ -70,7 +70,7 @@ namespace ClientSampleBackgroundService
         {
             try
             {
-                await MQTTController.StartAsync("127.0.0.1");
+                await MQTTController.StartAsync("192.168.1.184");
             }
             catch
             {
@@ -78,15 +78,15 @@ namespace ClientSampleBackgroundService
             }
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            //    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 if (isConnected)
                 {
 
-                    await MQTTController.SetDataAsync("teste", "1234");
+                   // await MQTTController.SetDataAsync("HV/RobotComFilho", "weeeee");
 
-                    var t = MQTTController.GetDataAsync("teste").GetAwaiter();
+                    var t = MQTTController.GetDataAsync("HV/RobotComFilho").GetAwaiter();
                     var q = t.GetResult();
-                    _logger.LogInformation("received" + q + " @ {time} ", DateTimeOffset.Now);
+         //           _logger.LogInformation("received" + q + " @ {time} ", DateTimeOffset.Now);
                 }
                 //else
                 //{
@@ -99,7 +99,7 @@ namespace ClientSampleBackgroundService
                 //        _logger.LogInformation("Failed to find the  broker {time}", DateTimeOffset.Now);
                 //    }
                 //}
-                await Task.Delay(10, stoppingToken);
+ 
             }
         }
     }
