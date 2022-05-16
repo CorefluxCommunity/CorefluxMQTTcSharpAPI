@@ -34,12 +34,12 @@
             PresistentCOnnection remembers the topics , QOS and last data even if disconnect. When a Start is run again it uses the old Data.
             </summary>
         </member>
-        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.Start(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.Start(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Initialize the global  MQTT client
             </summary>
         </member>
-        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.StartAsync(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.StartAsync(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Initialize the global  MQTT client asyncrounsly
             </summary>
@@ -108,7 +108,7 @@
             <param name="topic">topic </param>
             <param name="qoslevel">level of Qauality of service</param>
         </member>
-        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.ConnectAsync">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTController.ConnectAsync(System.Int32,System.Int32)">
             <summary>
             Connect to broker aysnc and construct the handled client
             </summary>
@@ -191,7 +191,7 @@
             PresistentCOnnection remembers the topics , QOS and last data even if disconnect. When a Start is run again it uses the old Data.
             </summary>
         </member>
-        <member name="M:Coreflux.API.Networking.MQTT.MQTTControllerInstance.StartAsync(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTControllerInstance.StartAsync(System.String,System.Int32,System.String,System.String,System.Boolean,System.Boolean,System.Int32,System.Int32)">
             <summary>
             Initialize the global  MQTT client asyncrounsly
             </summary>
@@ -260,7 +260,7 @@
             <param name="topic">topic </param>
             <param name="qoslevel">level of Qauality of service</param>
         </member>
-        <member name="M:Coreflux.API.Networking.MQTT.MQTTControllerInstance.ConnectAsync">
+        <member name="M:Coreflux.API.Networking.MQTT.MQTTControllerInstance.ConnectAsync(System.Int32,System.Int32)">
             <summary>
             Connect to broker aysnc and construct the handled client
             </summary>

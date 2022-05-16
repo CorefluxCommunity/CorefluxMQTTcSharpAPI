@@ -18,11 +18,11 @@ namespace ClientSampleBackgroundService
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
-            //MQTTController = new MQTTControllerInstance();
-            MQTTController.OnConnect += MQTTControllerInstance_OnConnect;
-            MQTTController.OnDisconnect += MQTTControllerInstance_OnDisconnect;
-            MQTTController.NewPayload += MQTTControllerInstance_NewPayload;
-            MQTTController.PersistentConnection = true;
+            MQTTControllerInstance = new MQTTControllerInstance();
+            MQTTControllerInstance.OnConnect += MQTTControllerInstance_OnConnect;
+            MQTTControllerInstance.OnDisconnect += MQTTControllerInstance_OnDisconnect;
+            MQTTControllerInstance.NewPayload += MQTTControllerInstance_NewPayload;
+            MQTTControllerInstance.PersistentConnection = true;
             AlreadyConnectedOneTime = false;
             isConnected = false;
         }
@@ -35,6 +35,8 @@ namespace ClientSampleBackgroundService
 
         private void MQTTControllerInstance_OnDisconnect()
         {
+            MQTTControllerInstance.Dispose();
+            MQTTControllerInstance.StartAsync("127.0.0.1", timeOut: 5, keepAlive: 1).Wait();
             _logger.LogInformation("Disconnected of broker {time}", DateTimeOffset.Now);
             isConnected = false;
             //    ReConnect();
@@ -47,7 +49,7 @@ namespace ClientSampleBackgroundService
             if (!AlreadyConnectedOneTime)
             {
                 //var t = MQTTController.GetDataAsync("teste").GetAwaiter();
-                var t = MQTTController.GetDataAsync("HV/RobotComFilho").GetAwaiter();
+                var t = MQTTControllerInstance.GetDataAsync("HV/RobotComFilho").GetAwaiter();
             }
             AlreadyConnectedOneTime = true;
             isConnected = true;
@@ -57,7 +59,7 @@ namespace ClientSampleBackgroundService
         {
             try
             {
-                await MQTTController.StartAsync("192.168.1.184");
+                await MQTTControllerInstance.StartAsync("192.168.1.184",timeOut:5,keepAlive:1);
             }
             catch
             {
@@ -70,7 +72,7 @@ namespace ClientSampleBackgroundService
         {
             try
             {
-                await MQTTController.StartAsync("192.168.1.184");
+                await MQTTControllerInstance.StartAsync("127.0.0.1", timeOut: 5, keepAlive: 1);
             }
             catch
             {
@@ -84,7 +86,7 @@ namespace ClientSampleBackgroundService
 
                    // await MQTTController.SetDataAsync("HV/RobotComFilho", "weeeee");
 
-                    var t = MQTTController.GetDataAsync("HV/RobotComFilho").GetAwaiter();
+                    var t = MQTTControllerInstance.GetDataAsync("HV/RobotComFilho").GetAwaiter();
                     var q = t.GetResult();
          //           _logger.LogInformation("received" + q + " @ {time} ", DateTimeOffset.Now);
                 }

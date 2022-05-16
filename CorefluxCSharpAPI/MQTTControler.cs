@@ -39,14 +39,14 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         public static bool PersistentConnection { get; set; }
 
-        private static string Uri;
-        private static int Portserver;
-        private static string User;
-        private static string Password;
-        private static bool Secure;
-        private static bool WithWS;
-        private static int KeepAlive;
-        private static int Timeout;
+        public static string Uri;
+        public static int Portserver;
+        public static string User;
+        public static string Password;
+        public static bool Secure;
+        public static bool WithWS;
+        public static int KeepAlive;
+        public static int Timeout;
 
         private static Dictionary<string, string> Data;
         private static Dictionary<string, int> DataQosLevel;
@@ -61,7 +61,7 @@ namespace Coreflux.API.Networking.MQTT
 
             Random Random = new Random();
             int randInt = Random.Next();
-            //       ClientName += "_" + randInt;
+            ClientName += "_" + randInt;
 
             try
             {
@@ -79,7 +79,7 @@ namespace Coreflux.API.Networking.MQTT
                 WithWS = usingWebSocket;
                 KeepAlive = keepAlive;
                 Timeout = timeOut;
-                var ConnectTask = ConnectAsync();
+                var ConnectTask = ConnectAsync(keepAlive, timeOut);
 
 
                 if (PersistentConnection)
@@ -98,7 +98,7 @@ namespace Coreflux.API.Networking.MQTT
         /// <summary>
         /// Initialize the global  MQTT client asyncrounsly
         /// </summary>
-        public static async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
+        public static async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false,int keepAlive= 5, int timeOut = 5)
         {
 
             Random Random = new Random();
@@ -118,12 +118,13 @@ namespace Coreflux.API.Networking.MQTT
                 Password = password;
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
-
+                KeepAlive = keepAlive;
+                Timeout = timeOut;
 
 
                 try
                 {
-                    await ConnectAsync();
+                    await ConnectAsync(keepAlive,timeOut);
                     if (PersistentConnection)
                     {
                         foreach (KeyValuePair<string, string> entry in Data)
@@ -157,19 +158,19 @@ namespace Coreflux.API.Networking.MQTT
             }
             else
             {
-                Task ConnectCheck = ConnectAsync();
+                Task ConnectCheck = ConnectAsync(KeepAlive,Timeout);
                 ConnectCheck.Wait();
                 if (ConnectCheck.IsCompleted)
                 {
-                    Task.Delay(500);
+                    Task.Delay(100);
                 }
                 else if (ConnectCheck.IsFaulted)
                 {
-                    Task.Delay(500);
+                    Task.Delay(100);
                 }
                 else
                 {
-                    Task.Delay(500);
+                    Task.Delay(100);
                 }
                 if (PersistentConnection)
                 {
@@ -284,7 +285,7 @@ namespace Coreflux.API.Networking.MQTT
         /// Connect to broker aysnc and construct the handled client
         /// </summary>
         /// <returns>Task.</returns>
-        private static async Task ConnectAsync(int timeout = 5, int keepalive = 5)
+        private static async Task ConnectAsync(int timeout, int keepalive)
         {
             string clientId = ClientName;
             string mqttURI = Uri;
@@ -315,7 +316,7 @@ namespace Coreflux.API.Networking.MQTT
               .WithCleanSession()
               .WithCommunicationTimeout(new TimeSpan(0, 0, 0, timeout, 0))
               .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive,0));
-             
+              
             
 
             if (WithWS)
@@ -551,22 +552,24 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         public bool PersistentConnection { get; set; }
 
-        private string Uri;
-        private int Portserver;
-        private string User;
-        private string Password;
-        private bool Secure;
-        private bool WithWS;
-
+        public string Uri;
+        public int Portserver;
+        public string User;
+        public string Password;
+        public bool Secure;
+        public bool WithWS;
+        public int KeepAlive;
+        public int Timeout;
         private Dictionary<string, string> Data;
         private Dictionary<string, int> DataQosLevel;
 
         private IMqttClient _mqttClient;
+        private bool disposedValue;
 
         /// <summary>
         /// Initialize the global  MQTT client asyncrounsly
         /// </summary>
-        public async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
+        public async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false,int keepAlive= 5, int timeOut = 5)
         {
 
             Random Random = new Random();
@@ -586,9 +589,10 @@ namespace Coreflux.API.Networking.MQTT
                 Password = password;
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
+                KeepAlive=keepAlive;
+                Timeout = timeOut;
 
-
-                await ConnectAsync();
+                await ConnectAsync(keepAlive,timeOut);
                 if (PersistentConnection)
                 {
                     foreach (KeyValuePair<string, string> entry in Data)
@@ -617,19 +621,19 @@ namespace Coreflux.API.Networking.MQTT
             }
             else
             {
-                Task ConnectCheck = ConnectAsync();
+                Task ConnectCheck = ConnectAsync(KeepAlive,Timeout);
                 ConnectCheck.Wait();
                 if (ConnectCheck.IsCompleted)
                 {
-                    Task.Delay(500);
+                    Task.Delay(100);
                 }
                 else if (ConnectCheck.IsFaulted)
                 {
-                    Task.Delay(500);
+                    Task.Delay(100);
                 }
                 else
                 {
-                    Task.Delay(500);
+                    Task.Delay(100);
                 }
                 if (PersistentConnection)
                 {
@@ -744,7 +748,7 @@ namespace Coreflux.API.Networking.MQTT
         /// Connect to broker aysnc and construct the handled client
         /// </summary>
         /// <returns>Task.</returns>
-        private async Task ConnectAsync()
+        private async Task ConnectAsync(int timeout, int keepalive)
         {
             string clientId = ClientName;
             string mqttURI = Uri;
@@ -753,12 +757,29 @@ namespace Coreflux.API.Networking.MQTT
             int mqttPort = Portserver;
             bool mqttSecure = Secure;
             bool websocket = WithWS;
-
+            if (timeout < 1)
+            {
+                timeout = 1;
+            }
+            if (keepalive < 1)
+            {
+                keepalive = 1;
+            }
+            if (keepalive > 30)
+            {
+                keepalive = 30;
+            }
+            if (timeout > 30)
+            {
+                timeout = 30;
+            }
             var messageBuilder = new MqttClientOptionsBuilder()
               .WithClientId(clientId)
               .WithCredentials(mqttUser, mqttPassword)
-              .WithKeepAlivePeriod(new TimeSpan(0, 0, 8))
-              .WithCleanSession();
+              .WithCleanSession()
+              .WithCommunicationTimeout(new TimeSpan(0, 0, 0, timeout, 0))
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive, 0));
+
 
             if (WithWS)
             {
@@ -909,6 +930,23 @@ namespace Coreflux.API.Networking.MQTT
             {
                 return "";
             }
+        }
+
+
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~MQTTControllerInstance()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            _mqttClient.DisconnectAsync().Dispose();    
+            GC.SuppressFinalize(_mqttClient);
+            
         }
     }
 
