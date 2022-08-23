@@ -10,7 +10,6 @@ D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\Corefl
 D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.GeneratedMSBuildEditorConfig.editorconfig
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Release\netstandard2.0\CorefluxMQTTcSharpAPI.deps.json
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Release\netstandard2.0\CorefluxMQTTcSharpAPI.dll
-D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Release\netstandard2.0\CorefluxMQTTcSharpAPI.pdb
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\bin\Release\netstandard2.0\CorefluxMQTTcSharpAPI.xml
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.csproj.AssemblyReference.cache
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.GeneratedMSBuildEditorConfig.editorconfig
@@ -18,4 +17,3 @@ D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstanda
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.AssemblyInfo.cs
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxCSharpAPI.csproj.CoreCompileInputs.cache
 D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxMQTTcSharpAPI.dll
-D:\Docs\2-Products\CorefluxMQTTcSharpAPI\CorefluxCSharpAPI\obj\Release\netstandard2.0\CorefluxMQTTcSharpAPI.pdb

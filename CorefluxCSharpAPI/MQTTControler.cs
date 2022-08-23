@@ -10,6 +10,7 @@ using System;
 using System.Text;
 using System.Net;
 using Random = System.Random;
+using System.Security.Authentication;
 
 namespace Coreflux.API.Networking.MQTT
 {
@@ -56,7 +57,7 @@ namespace Coreflux.API.Networking.MQTT
         /// Initialize the global  MQTT client
         /// </summary>
         [Obsolete("Start is deprecated, please use StartAsync instead.")]
-        public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false,int keepAlive=5,int timeOut=5)
+        public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false, int keepAlive = 5, int timeOut = 5)
         {
 
             Random Random = new Random();
@@ -65,7 +66,7 @@ namespace Coreflux.API.Networking.MQTT
 
             try
             {
-                
+
                 if (Data == null)
                 {
                     Data = new Dictionary<string, string>();
@@ -98,7 +99,7 @@ namespace Coreflux.API.Networking.MQTT
         /// <summary>
         /// Initialize the global  MQTT client asyncrounsly
         /// </summary>
-        public static async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false,int keepAlive= 5, int timeOut = 5)
+        public static async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false, int keepAlive = 5, int timeOut = 5)
         {
 
             Random Random = new Random();
@@ -124,7 +125,7 @@ namespace Coreflux.API.Networking.MQTT
 
                 try
                 {
-                    await ConnectAsync(keepAlive,timeOut);
+                    await ConnectAsync(keepAlive, timeOut);
                     if (PersistentConnection)
                     {
                         foreach (KeyValuePair<string, string> entry in Data)
@@ -158,7 +159,7 @@ namespace Coreflux.API.Networking.MQTT
             }
             else
             {
-                Task ConnectCheck = ConnectAsync(KeepAlive,Timeout);
+                Task ConnectCheck = ConnectAsync(KeepAlive, Timeout);
                 ConnectCheck.Wait();
                 if (ConnectCheck.IsCompleted)
                 {
@@ -211,6 +212,7 @@ namespace Coreflux.API.Networking.MQTT
                 var t = await PublishA(topic, payload, Retain, QosLevel);
 
             }
+
         }
         /// <summary>
         /// Subscribes to a topic
@@ -315,9 +317,9 @@ namespace Coreflux.API.Networking.MQTT
               .WithCredentials(mqttUser, mqttPassword)
               .WithCleanSession()
               .WithCommunicationTimeout(new TimeSpan(0, 0, 0, timeout, 0))
-              .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive,0));
-              
-            
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive, 0));
+
+
 
             if (WithWS)
             {
@@ -330,7 +332,10 @@ namespace Coreflux.API.Networking.MQTT
 
             var options = mqttSecure
               ? messageBuilder
-                .WithTls()
+                 .WithTls(o =>
+                 {
+                     o.SslProtocol = SslProtocols.Tls12; // The default value is determined by the OS. Set manually to force version.
+                 })
                 .Build()
               : messageBuilder
                 .Build();
@@ -562,14 +567,14 @@ namespace Coreflux.API.Networking.MQTT
         public int Timeout;
         private Dictionary<string, string> Data;
         private Dictionary<string, int> DataQosLevel;
-
+        private DateTime LastTime;
         private IMqttClient _mqttClient;
         private bool disposedValue;
 
         /// <summary>
         /// Initialize the global  MQTT client asyncrounsly
         /// </summary>
-        public async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false,int keepAlive= 5, int timeOut = 5)
+        public async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false, int keepAlive = 5, int timeOut = 5)
         {
 
             Random Random = new Random();
@@ -589,10 +594,10 @@ namespace Coreflux.API.Networking.MQTT
                 Password = password;
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
-                KeepAlive=keepAlive;
+                KeepAlive = keepAlive;
                 Timeout = timeOut;
-
-                await ConnectAsync(keepAlive,timeOut);
+                LastTime = DateTime.Now;
+                await ConnectAsync(keepAlive, timeOut);
                 if (PersistentConnection)
                 {
                     foreach (KeyValuePair<string, string> entry in Data)
@@ -607,6 +612,25 @@ namespace Coreflux.API.Networking.MQTT
             }
 
         }
+
+        private async Task Verification()
+        {
+
+            var difference = DateTime.Now - (LastTime.AddSeconds(Timeout));
+            if (difference.TotalMilliseconds > 0)
+            {
+                if (difference.TotalSeconds > Timeout)
+                {
+                    Task.Delay(Timeout * 1000).Wait();
+                }
+                else
+                {
+                    Task.Delay(difference).Wait();
+                }
+            }
+        }
+
+
         /// <summary>
         /// Reaction to disconnection
         /// </summary>
@@ -621,19 +645,29 @@ namespace Coreflux.API.Networking.MQTT
             }
             else
             {
-                Task ConnectCheck = ConnectAsync(KeepAlive,Timeout);
+                Verification().Wait();
+
+                Task ConnectCheck = ConnectAsync(KeepAlive, Timeout);
                 ConnectCheck.Wait();
                 if (ConnectCheck.IsCompleted)
                 {
-                    Task.Delay(100);
+                    if (this._mqttClient.IsConnected)
+                    {
+                        Task.Delay(1);
+                        LastTime = DateTime.Now;
+                    }
+                    else
+                    {
+                        Task.Delay(Timeout * 1000).Wait();
+                    }
                 }
                 else if (ConnectCheck.IsFaulted)
                 {
-                    Task.Delay(100);
+                    //Task.Delay(Timeout * 1000).Wait();
                 }
                 else
                 {
-                    Task.Delay(100);
+                    // Task.Delay(Timeout* 1000).Wait();
                 }
                 if (PersistentConnection)
                 {
@@ -652,13 +686,22 @@ namespace Coreflux.API.Networking.MQTT
         /// <param name="QosLevel"></param>
         /// <param name="Retain"></param>
         [Obsolete("Publish is deprecated, please use PublishAsync instead.")]
-        private void Publish(string topic, string payload, int QosLevel = 0, bool Retain = false)
+        private MQTTPublishFeedback Publish(string topic, string payload, int QosLevel = 0, bool Retain = false)
         {
             if (Connected())
             {
                 var pub = PublishA(topic, payload, Retain, QosLevel);
-                pub.Wait(1);
+                pub.Wait(100);
+                if (pub.Result.ReasonCode == MQTTnet.Client.Publishing.MqttClientPublishReasonCode.Success)
+                {
+                    return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishSucess };
+                }
+                else
+                {
+                    return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed };
+                }
             }
+            return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed };
         }
         /// <summary>
         /// Publishes a retain topic payload async
@@ -667,13 +710,29 @@ namespace Coreflux.API.Networking.MQTT
         /// <param name="payload"></param>
         /// <param name="QosLevel"></param>
         /// <param name="Retain"></param>
-        private async Task PublishAsync(string topic, string payload, int QosLevel = 0, bool Retain = false)
+        private async Task<MQTTPublishFeedback> PublishAsync(string topic, string payload, int QosLevel = 0, bool Retain = false)
         {
             if (Connected())
             {
-                var t = await PublishA(topic, payload, Retain, QosLevel);
+                var send = _mqttClient.PublishAsync(topic, payload, (MQTTnet.Protocol.MqttQualityOfServiceLevel)QosLevel, Retain);
+                send.Wait(100);
+                if (send.IsCompleted)
+                {
+                    if (send.Result.ReasonCode == MQTTnet.Client.Publishing.MqttClientPublishReasonCode.Success)
+                    {
+                        return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishSucess };
+                    }
+                    else
+                    {
+                        return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed };
+                    }
+                }
+
+
 
             }
+
+            return null;
         }
         /// <summary>
         /// Subscribes to a topic
@@ -792,7 +851,10 @@ namespace Coreflux.API.Networking.MQTT
 
             var options = mqttSecure
               ? messageBuilder
-                .WithTls()
+                .WithTls(o =>
+                {
+                    o.SslProtocol = SslProtocols.Tls12; // The default value is determined by the OS. Set manually to force version.
+                })
                 .Build()
               : messageBuilder
                 .Build();
@@ -814,7 +876,11 @@ namespace Coreflux.API.Networking.MQTT
 
                     if (string.IsNullOrWhiteSpace(topic) == false)
                     {
-                        string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                        string payload = "";
+                        if(e.ApplicationMessage.Payload?.Length>0)
+                        { 
+                            payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                        }
                         if (Data.ContainsKey(topic))
                         {
                             Data[topic] = payload;
@@ -827,7 +893,8 @@ namespace Coreflux.API.Networking.MQTT
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message, ex);
+                    //throw ex;
+                   //Console.WriteLine(ex.Message, ex);
                 }
             });
             try
@@ -884,25 +951,50 @@ namespace Coreflux.API.Networking.MQTT
         /// <param name="payload">The payload required to publish </param>
         /// <param name="qoslevel">The level of quality of service 0,1,2</param>
         /// <param name="retain">If the topic will be retain or not on the broker True/False</param>
-        public async Task SetDataAsync(string topic, string payload, int qoslevel = 0, bool retain = false)
+        public async Task<MQTTPublishFeedback> SetDataAsync(string topic, string payload, int qoslevel = 0, bool retain = false)
         {
             if (Connected())
             {
                 if (Data.ContainsKey(topic))
                 {
+
                     Data[topic] = payload;
-                    await PublishAsync(topic, payload, qoslevel, retain);
+                    var pubTask = PublishAsync(topic, payload, qoslevel, retain);
+                    if (pubTask != null)
+                    {
+                        pubTask.Wait(100);
+                        return pubTask.Result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
 
                 }
                 else
                 {
+   
                     //Subscribe(topic, qoslevel);
                     AddTopicToData(topic, qoslevel);
                     Data[topic] = payload;
-                    await PublishAsync(topic, payload, qoslevel, retain);
+                    var pubTask = PublishAsync(topic, payload, qoslevel, retain);
+                    if (pubTask != null)
+                    {
+                        pubTask.Wait(100);
+                        return pubTask.Result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
 
                 }
             }
+            return null;
+
+
+            //  return (new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed });
         }
 
         /// <summary>
@@ -944,9 +1036,9 @@ namespace Coreflux.API.Networking.MQTT
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            _mqttClient.DisconnectAsync().Dispose();    
+            _mqttClient.DisconnectAsync().Dispose();
             GC.SuppressFinalize(_mqttClient);
-            
+
         }
     }
 
@@ -978,5 +1070,17 @@ namespace Coreflux.API.Networking.MQTT
 
         }
 
+    }
+
+
+    public class MQTTPublishFeedback
+    {
+        public enum FeedbackType
+        {
+            PublishFailed,
+            PublishSucess
+        }
+
+        public FeedbackType ReasonFeedback;
     }
 }
