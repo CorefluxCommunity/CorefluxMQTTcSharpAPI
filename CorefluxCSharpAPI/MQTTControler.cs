@@ -10,11 +10,12 @@ using System;
 using System.Text;
 using System.Net;
 using Random = System.Random;
+using System.Security.Authentication;
 
 namespace Coreflux.API.Networking.MQTT
 {
     /// <summary>
-    /// A managed MQTT client (version 3.1 / 3.11 / 5 )
+    /// A managed MQTT client that is ready to go (version 3.1 / 3.11 / 5 )
     /// </summary>
     public static class MQTTController
     {
@@ -39,12 +40,14 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         public static bool PersistentConnection { get; set; }
 
-        private static string Uri;
-        private static int Portserver;
-        private static string User;
-        private static string Password;
-        private static bool Secure;
-        private static bool WithWS;
+        public static string Uri;
+        public static int Portserver;
+        public static string User;
+        public static string Password;
+        public static bool Secure;
+        public static bool WithWS;
+        public static int KeepAlive;
+        public static int Timeout;
 
         private static Dictionary<string, string> Data;
         private static Dictionary<string, int> DataQosLevel;
@@ -54,12 +57,12 @@ namespace Coreflux.API.Networking.MQTT
         /// Initialize the global  MQTT client
         /// </summary>
         [Obsolete("Start is deprecated, please use StartAsync instead.")]
-        public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
+        public static void Start(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false, int keepAlive = 5, int timeOut = 5)
         {
 
             Random Random = new Random();
             int randInt = Random.Next();
-            //       ClientName += "_" + randInt;
+            ClientName += "_" + randInt;
 
             try
             {
@@ -75,15 +78,16 @@ namespace Coreflux.API.Networking.MQTT
                 Password = password;
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
-
-                var ConnectTask = ConnectAsync();
+                KeepAlive = keepAlive;
+                Timeout = timeOut;
+                var ConnectTask = ConnectAsync(keepAlive, timeOut);
 
 
                 if (PersistentConnection)
                 {
                     foreach (KeyValuePair<string, string> entry in Data)
                     {
-                        Subscribe(entry.Key, DataQosLevel[entry.Key]);
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
                     }
                 }
             }
@@ -95,12 +99,12 @@ namespace Coreflux.API.Networking.MQTT
         /// <summary>
         /// Initialize the global  MQTT client asyncrounsly
         /// </summary>
-        public static async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false)
+        public static async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false, int keepAlive = 5, int timeOut = 5)
         {
 
             Random Random = new Random();
             int randInt = Random.Next();
-            //     ClientName += "_" + randInt;
+            ClientName += "_" + randInt;
             try
             {
 
@@ -115,18 +119,25 @@ namespace Coreflux.API.Networking.MQTT
                 Password = password;
                 Secure = mqttSecure;
                 WithWS = usingWebSocket;
+                KeepAlive = keepAlive;
+                Timeout = timeOut;
 
 
-
-
-                if (PersistentConnection)
+                try
                 {
-                    foreach (KeyValuePair<string, string> entry in Data)
+                    await ConnectAsync(keepAlive, timeOut);
+                    if (PersistentConnection)
                     {
-                        Subscribe(entry.Key, DataQosLevel[entry.Key]);
+                        foreach (KeyValuePair<string, string> entry in Data)
+                        {
+                            Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                        }
                     }
                 }
-                await ConnectAsync();
+                catch
+                {
+
+                }
             }
             catch
             {
@@ -139,12 +150,36 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private static void client_MQTTMsgDisconnected()
+        private static async void client_MQTTMsgDisconnected()
         {
             if (!PersistentConnection)
             {
                 Data.Clear();
                 DataQosLevel.Clear();
+            }
+            else
+            {
+                Task ConnectCheck = ConnectAsync(KeepAlive, Timeout);
+                ConnectCheck.Wait();
+                if (ConnectCheck.IsCompleted)
+                {
+                    Task.Delay(100);
+                }
+                else if (ConnectCheck.IsFaulted)
+                {
+                    Task.Delay(100);
+                }
+                else
+                {
+                    Task.Delay(100);
+                }
+                if (PersistentConnection)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data)
+                    {
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                    }
+                }
             }
         }
         /// <summary>
@@ -177,6 +212,7 @@ namespace Coreflux.API.Networking.MQTT
                 var t = await PublishA(topic, payload, Retain, QosLevel);
 
             }
+
         }
         /// <summary>
         /// Subscribes to a topic
@@ -184,13 +220,14 @@ namespace Coreflux.API.Networking.MQTT
         /// <param name="topic"></param>
         /// <param name="QosLevel"></param>
         [Obsolete("Subscribe is deprecated, please use SubscribeAsync instead.")]
-        private static void Subscribe(string topic, int QosLevel)
+        private static void Subscribe(string topic, int QosLevel, bool Forced)
         {
             if (Connected())
             {
                 var sub = SubscribeA(topic, QosLevel);
                 sub.Wait(50);
-                AddTopicToData(topic, QosLevel);
+                if (!Forced)
+                    AddTopicToData(topic, QosLevel);
             }
         }
         /// <summary>
@@ -250,7 +287,7 @@ namespace Coreflux.API.Networking.MQTT
         /// Connect to broker aysnc and construct the handled client
         /// </summary>
         /// <returns>Task.</returns>
-        private static async Task ConnectAsync()
+        private static async Task ConnectAsync(int timeout, int keepalive)
         {
             string clientId = ClientName;
             string mqttURI = Uri;
@@ -259,13 +296,31 @@ namespace Coreflux.API.Networking.MQTT
             int mqttPort = Portserver;
             bool mqttSecure = Secure;
             bool websocket = WithWS;
-
+            if (timeout < 1)
+            {
+                timeout = 1;
+            }
+            if (keepalive < 1)
+            {
+                keepalive = 1;
+            }
+            if (keepalive > 30)
+            {
+                keepalive = 30;
+            }
+            if (timeout > 30)
+            {
+                timeout = 30;
+            }
             var messageBuilder = new MqttClientOptionsBuilder()
               .WithClientId(clientId)
               .WithCredentials(mqttUser, mqttPassword)
+              .WithCleanSession()
+              .WithCommunicationTimeout(new TimeSpan(0, 0, 0, timeout, 0))
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive, 0));
 
 
-              .WithCleanSession();
+
             if (WithWS)
             {
                 messageBuilder.WithWebSocketServer(mqttURI);
@@ -277,7 +332,10 @@ namespace Coreflux.API.Networking.MQTT
 
             var options = mqttSecure
               ? messageBuilder
-                .WithTls()
+                 .WithTls(o =>
+                 {
+                     o.SslProtocol = SslProtocols.Tls12; // The default value is determined by the OS. Set manually to force version.
+                 })
                 .Build()
               : messageBuilder
                 .Build();
@@ -316,7 +374,15 @@ namespace Coreflux.API.Networking.MQTT
                 }
             });
 
-            await _mqttClient.ConnectAsync(options);
+            try
+            {
+                await _mqttClient.ConnectAsync(options);
+            }
+            catch
+            {
+
+            }
+
 
         }
         private static void OnConnected(MqttClientConnectedEventArgs obj)
@@ -336,7 +402,16 @@ namespace Coreflux.API.Networking.MQTT
         /// <returns>True if connected to broker</returns>
         public static bool Connected()
         {
-            return _mqttClient.IsConnected;
+            bool returner = false;
+            try
+            {
+                returner = _mqttClient.IsConnected;
+            }
+            catch
+            {
+                return returner;
+            }
+            return returner;
         }
         /// <summary>
         /// Stops the managed client and disconnects entirelly to  the broker
@@ -405,19 +480,20 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         /// <param name="topic">The topic it is required to publish </param>
         /// <param name="qoslevel">The quality of service required 0,1,2</param>
+        ///  <param name="ForceSubscribe">True to force subscribe command to broker</param>
         /// <returns>The last payload received in hte topic</returns>
         [Obsolete("GetData is deprecated, please use GetDataAsync instead.")]
-        public static string GetData(string topic, int qoslevel = 0)
+        public static string GetData(string topic, int qoslevel = 0, bool ForceSubscribe = false)
         {
             if (Connected())
             {
-                if (Data.ContainsKey(topic))
+                if (Data.ContainsKey(topic) && !ForceSubscribe)
                 {
                     return Data[topic];
                 }
                 else
                 {
-                    Subscribe(topic, qoslevel);
+                    Subscribe(topic, qoslevel, ForceSubscribe);
                     return "";
                 }
             }
@@ -431,12 +507,13 @@ namespace Coreflux.API.Networking.MQTT
         /// </summary>
         /// <param name="topic">The topic it is required to publish </param>
         /// <param name="qoslevel">The quality of service required 0,1,2</param>
+        /// <param name="ForceSubscribe">True to force subscribe command to broker</param>
         /// <returns>The last payload received in hte topic</returns>
-        public static async Task<string> GetDataAsync(string topic, int qoslevel = 0)
+        public static async Task<string> GetDataAsync(string topic, int qoslevel = 0, bool ForceSubscribe = false)
         {
             if (Connected())
             {
-                if (Data.ContainsKey(topic))
+                if (Data.ContainsKey(topic) && !ForceSubscribe)
                 {
                     return Data[topic];
                 }
@@ -450,6 +527,518 @@ namespace Coreflux.API.Networking.MQTT
             {
                 return "";
             }
+        }
+    }
+
+
+    /// <summary>
+    /// A managed MQTT client that can be instanciated (version 3.1 / 3.11 / 5 )
+    /// </summary>
+    public class MQTTControllerInstance
+    {
+        /// <summary>
+        /// Event Triggered if connected to Broker
+        /// </summary>
+        public event Action OnConnect;
+        /// <summary>
+        /// Event Triggered if disconnected from Broker
+        /// </summary>
+        public event Action OnDisconnect;
+        /// <summary>
+        /// Use GetDataAsync to map a subscription in order to trigger a payload . Replies using an MQTTNewPayload
+        /// </summary>
+        public event Action<MQTTNewPayload> NewPayload;
+        /// <summary>
+        /// The client Name for the 
+        /// </summary>
+        public string ClientName { get; set; }
+        /// <summary>
+        /// PresistentCOnnection remembers the topics , QOS and last data even if disconnect. When a Start is run again it uses the old Data.
+        /// </summary>
+        public bool PersistentConnection { get; set; }
+
+        public string Uri;
+        public int Portserver;
+        public string User;
+        public string Password;
+        public bool Secure;
+        public bool WithWS;
+        public int KeepAlive;
+        public int Timeout;
+        private Dictionary<string, string> Data;
+        private Dictionary<string, int> DataQosLevel;
+        private DateTime LastTime;
+        private IMqttClient _mqttClient;
+        private bool disposedValue;
+
+        /// <summary>
+        /// Initialize the global  MQTT client asyncrounsly
+        /// </summary>
+        public async Task StartAsync(string IP, int port = 1883, string user = "", string password = "", bool mqttSecure = false, bool usingWebSocket = false, int keepAlive = 5, int timeOut = 5)
+        {
+
+            Random Random = new Random();
+            int randInt = Random.Next();
+            ClientName += "_" + randInt;
+            try
+            {
+
+                if (Data == null)
+                {
+                    Data = new Dictionary<string, string>();
+                    DataQosLevel = new Dictionary<string, int>();
+                }
+                Uri = IP;
+                Portserver = port;
+                User = user;
+                Password = password;
+                Secure = mqttSecure;
+                WithWS = usingWebSocket;
+                KeepAlive = keepAlive;
+                Timeout = timeOut;
+                LastTime = DateTime.Now;
+                await ConnectAsync(keepAlive, timeOut);
+                if (PersistentConnection)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data)
+                    {
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                    }
+                }
+            }
+            catch
+            {
+                throw new ConnectionFailBrokerException(IP);
+            }
+
+        }
+
+        private async Task Verification()
+        {
+
+            var difference = DateTime.Now - (LastTime.AddSeconds(Timeout));
+            if (difference.TotalMilliseconds > 0)
+            {
+                if (difference.TotalSeconds > Timeout)
+                {
+                    Task.Delay(Timeout * 1000).Wait();
+                }
+                else
+                {
+                    Task.Delay(difference).Wait();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Reaction to disconnection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void client_MQTTMsgDisconnected()
+        {
+            if (!PersistentConnection)
+            {
+                Data.Clear();
+                DataQosLevel.Clear();
+            }
+            else
+            {
+                Verification().Wait();
+
+                Task ConnectCheck = ConnectAsync(KeepAlive, Timeout);
+                ConnectCheck.Wait();
+                if (ConnectCheck.IsCompleted)
+                {
+                    if (this._mqttClient.IsConnected)
+                    {
+                        Task.Delay(1);
+                        LastTime = DateTime.Now;
+                    }
+                    else
+                    {
+                        Task.Delay(Timeout * 1000).Wait();
+                    }
+                }
+                else if (ConnectCheck.IsFaulted)
+                {
+                    //Task.Delay(Timeout * 1000).Wait();
+                }
+                else
+                {
+                    // Task.Delay(Timeout* 1000).Wait();
+                }
+                if (PersistentConnection)
+                {
+                    foreach (KeyValuePair<string, string> entry in Data)
+                    {
+                        Subscribe(entry.Key, DataQosLevel[entry.Key], false);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Publishes a retain topic payload
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="payload"></param>
+        /// <param name="QosLevel"></param>
+        /// <param name="Retain"></param>
+        [Obsolete("Publish is deprecated, please use PublishAsync instead.")]
+        private MQTTPublishFeedback Publish(string topic, string payload, int QosLevel = 0, bool Retain = false)
+        {
+            if (Connected())
+            {
+                var pub = PublishA(topic, payload, Retain, QosLevel);
+                pub.Wait(100);
+                if (pub.Result.ReasonCode == MQTTnet.Client.Publishing.MqttClientPublishReasonCode.Success)
+                {
+                    return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishSucess };
+                }
+                else
+                {
+                    return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed };
+                }
+            }
+            return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed };
+        }
+        /// <summary>
+        /// Publishes a retain topic payload async
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="payload"></param>
+        /// <param name="QosLevel"></param>
+        /// <param name="Retain"></param>
+        private async Task<MQTTPublishFeedback> PublishAsync(string topic, string payload, int QosLevel = 0, bool Retain = false)
+        {
+            if (Connected())
+            {
+                var send = _mqttClient.PublishAsync(topic, payload, (MQTTnet.Protocol.MqttQualityOfServiceLevel)QosLevel, Retain);
+                send.Wait(100);
+                if (send.IsCompleted)
+                {
+                    if (send.Result.ReasonCode == MQTTnet.Client.Publishing.MqttClientPublishReasonCode.Success)
+                    {
+                        return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishSucess };
+                    }
+                    else
+                    {
+                        return new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed };
+                    }
+                }
+
+
+
+            }
+
+            return null;
+        }
+        /// <summary>
+        /// Subscribes to a topic
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="QosLevel"></param>
+        [Obsolete("Subscribe is deprecated, please use SubscribeAsync instead.")]
+        private void Subscribe(string topic, int QosLevel, bool Forced)
+        {
+            if (Connected())
+            {
+                var sub = SubscribeA(topic, QosLevel);
+                sub.Wait(50);
+                if (!Forced)
+                    AddTopicToData(topic, QosLevel);
+            }
+        }
+        /// <summary>
+        /// Subscribes Asyncronsly to a certain topic
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="QosLevel"></param>
+        private async Task SubscribeAsync(string topic, int QosLevel)
+        {
+            if (Connected())
+            {
+                await SubscribeA(topic, QosLevel);
+
+                AddTopicToData(topic, QosLevel);
+            }
+        }
+        /// <summary>
+        /// Subscribes Async the topic
+        /// </summary>
+        /// <param name="topic"></param>
+        /// <param name="qos"></param>
+        /// <returns></returns>
+        private async Task SubscribeA(string topic, int qos = 1) => await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(topic).WithQualityOfServiceLevel((MQTTnet.Protocol.MqttQualityOfServiceLevel)qos).Build());
+        /// <summary>
+        /// Publish Message.
+        /// </summary>
+        /// <param name="topic">Topic.</param>
+        /// <param name="payload">Payload.</param>
+        /// <param name="retainFlag">Retain flag.</param>
+        /// <param name="qos">Quality of Service.</param>
+        /// <returns>Task.</returns>
+        private async Task<MQTTnet.Client.Publishing.MqttClientPublishResult> PublishA(string topic, string payload, bool retainFlag = true, int qos = 1)
+        {
+            return await _mqttClient.PublishAsync(topic, payload, (MQTTnet.Protocol.MqttQualityOfServiceLevel)qos, retainFlag);
+        }
+        /// <summary>
+        /// Adds topics to data Array
+        /// </summary>
+        /// <param name="topic">topic </param>
+        /// <param name="qoslevel">level of Qauality of service</param>
+        private void AddTopicToData(string topic, int qoslevel)
+        {
+            if (!Data.ContainsKey(topic))
+            {
+                Data.Add(topic, "");
+            }
+            if (!DataQosLevel.ContainsKey(topic))
+            {
+                DataQosLevel.Add(topic, qoslevel);
+            }
+            else
+            {
+                DataQosLevel[topic] = qoslevel;
+            }
+        }
+        /// <summary>
+        /// Connect to broker aysnc and construct the handled client
+        /// </summary>
+        /// <returns>Task.</returns>
+        private async Task ConnectAsync(int timeout, int keepalive)
+        {
+            string clientId = ClientName;
+            string mqttURI = Uri;
+            string mqttUser = User;
+            string mqttPassword = Password;
+            int mqttPort = Portserver;
+            bool mqttSecure = Secure;
+            bool websocket = WithWS;
+            if (timeout < 1)
+            {
+                timeout = 1;
+            }
+            if (keepalive < 1)
+            {
+                keepalive = 1;
+            }
+            if (keepalive > 30)
+            {
+                keepalive = 30;
+            }
+            if (timeout > 30)
+            {
+                timeout = 30;
+            }
+            var messageBuilder = new MqttClientOptionsBuilder()
+              .WithClientId(clientId)
+              .WithCredentials(mqttUser, mqttPassword)
+              .WithCleanSession()
+              .WithCommunicationTimeout(new TimeSpan(0, 0, 0, timeout, 0))
+              .WithKeepAlivePeriod(new TimeSpan(0, 0, 0, keepalive, 0));
+
+
+            if (WithWS)
+            {
+                messageBuilder.WithWebSocketServer(mqttURI);
+            }
+            else
+            {
+                messageBuilder.WithTcpServer(mqttURI, mqttPort).WithCleanSession();
+            }
+
+            var options = mqttSecure
+              ? messageBuilder
+                .WithTls(o =>
+                {
+                    o.SslProtocol = SslProtocols.Tls12; // The default value is determined by the OS. Set manually to force version.
+                })
+                .Build()
+              : messageBuilder
+                .Build();
+
+
+
+            var factory = new MqttFactory();
+            _mqttClient = factory.CreateMqttClient();
+            _mqttClient.ConnectedHandler = new MqttClientConnectedHandlerDelegate(OnConnected);
+            _mqttClient.DisconnectedHandler = new MqttClientDisconnectedHandlerDelegate(OnDisconnected);
+            //   _mqttClient.ConnectingFailedHandler = new ConnectingFailedHandlerDelegate(OnConnectingFailed);
+
+            _mqttClient.UseApplicationMessageReceivedHandler(e =>
+            {
+
+                try
+                {
+                    string topic = e.ApplicationMessage.Topic;
+
+                    if (string.IsNullOrWhiteSpace(topic) == false)
+                    {
+                        string payload = "";
+                        if(e.ApplicationMessage.Payload?.Length>0)
+                        { 
+                            payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                        }
+                        if (Data.ContainsKey(topic))
+                        {
+                            Data[topic] = payload;
+                        }
+                        MQTTNewPayload t = new MQTTNewPayload();
+                        t.topic = topic;
+                        t.payload = payload;
+                        NewPayload?.Invoke(t);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                   //Console.WriteLine(ex.Message, ex);
+                }
+            });
+            try
+            {
+                await _mqttClient.ConnectAsync(options);
+            }
+            catch
+            {
+
+            }
+
+        }
+        private void OnConnected(MqttClientConnectedEventArgs obj)
+        {
+            if (OnConnect != null)
+                OnConnect.Invoke();
+        }
+        private void OnDisconnected(MqttClientDisconnectedEventArgs obj)
+        {
+            if (OnDisconnect != null)
+                OnDisconnect.Invoke();
+            client_MQTTMsgDisconnected();
+        }
+        /// <summary>
+        /// Verifies the connection to broker
+        /// </summary>
+        /// <returns>True if connected to broker</returns>
+        public bool Connected()
+        {
+            bool returner = false;
+            try
+            {
+                returner = _mqttClient.IsConnected;
+            }
+            catch
+            {
+                return false;
+            }
+            return returner;
+        }
+        /// <summary>
+        /// Stops the managed client and disconnects entirelly to  the broker
+        /// </summary>
+        public async Task StopAsync()
+        {
+            await _mqttClient.DisconnectAsync();
+        }
+
+
+        /// <summary>
+        /// Publishses the topics in an async fashion
+        /// </summary>
+        /// <param name="topic">The topic it is required to publish </param>
+        /// <param name="payload">The payload required to publish </param>
+        /// <param name="qoslevel">The level of quality of service 0,1,2</param>
+        /// <param name="retain">If the topic will be retain or not on the broker True/False</param>
+        public async Task<MQTTPublishFeedback> SetDataAsync(string topic, string payload, int qoslevel = 0, bool retain = false)
+        {
+            if (Connected())
+            {
+                if (Data.ContainsKey(topic))
+                {
+
+                    Data[topic] = payload;
+                    var pubTask = PublishAsync(topic, payload, qoslevel, retain);
+                    if (pubTask != null)
+                    {
+                        pubTask.Wait(100);
+                        return pubTask.Result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
+
+                }
+                else
+                {
+   
+                    //Subscribe(topic, qoslevel);
+                    AddTopicToData(topic, qoslevel);
+                    Data[topic] = payload;
+                    var pubTask = PublishAsync(topic, payload, qoslevel, retain);
+                    if (pubTask != null)
+                    {
+                        pubTask.Wait(100);
+                        return pubTask.Result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
+                }
+            }
+            return null;
+
+
+            //  return (new MQTTPublishFeedback() { ReasonFeedback = MQTTPublishFeedback.FeedbackType.PublishFailed });
+        }
+
+        /// <summary>
+        /// Gets topic data Async mode
+        /// </summary>
+        /// <param name="topic">The topic it is required to publish </param>
+        /// <param name="qoslevel">The quality of service required 0,1,2</param>
+        /// <param name="ForceSubscribe">True to force subscribe command to broker</param>
+        /// <returns>The last payload received in hte topic</returns>
+        public async Task<string> GetDataAsync(string topic, int qoslevel = 0, bool ForceSubscribe = false)
+        {
+            if (Connected())
+            {
+                if (Data.ContainsKey(topic) && !ForceSubscribe)
+                {
+                    return Data[topic];
+                }
+                else
+                {
+                    await SubscribeAsync(topic, qoslevel);
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~MQTTControllerInstance()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            _mqttClient.DisconnectAsync().Dispose();
+            GC.SuppressFinalize(_mqttClient);
+
         }
     }
 
@@ -481,5 +1070,17 @@ namespace Coreflux.API.Networking.MQTT
 
         }
 
+    }
+
+
+    public class MQTTPublishFeedback
+    {
+        public enum FeedbackType
+        {
+            PublishFailed,
+            PublishSucess
+        }
+
+        public FeedbackType ReasonFeedback;
     }
 }
