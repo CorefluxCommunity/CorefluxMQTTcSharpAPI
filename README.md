@@ -20,6 +20,18 @@ This nuget package is resposible for all integration with C# and Coreflux.
                                 API.StartInstance(inst.code);
                             }
                         }
+			
+ - Get all installed assets @ our Coreflux Hub and if they are started / stop them       
+   			Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
+                        var InstalledAssets = API.GetInstances();
+                        
+                        foreach(var inst in InstalledAssets)
+                        {
+                            if(inst.status== Coreflux.API.DataModels.InstanceStatus.Started)
+                            {
+                                API.StopInstance(inst.code);
+                            }
+                        }
                         
 # Coreflux MQTT Managed client 
 
