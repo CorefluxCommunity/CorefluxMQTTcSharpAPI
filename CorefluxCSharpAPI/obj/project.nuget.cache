@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "jQIFHQGquXk4cabSO9gsF2GyRAeZmp7FvMJv/eJHuNCQ7il3Y5mkcAZH1YRTB86m2D7WiY7U2QKQDi/5/hypkQ==",
+  "dgSpecHash": "1GapWvLTeetF1C7/KRtZ1X42h35amGY4hnAjs1LCbU8eXCEZq9OxkWrTHdto0ZL5rTtn9ovL24N4M/U1N1jtuw==",
   "success": true,
   "projectFilePath": "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet\\3.0.16\\mqttnet.3.0.16.nupkg.sha512",
-    "C:\\Users\\hugo.vaz\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\newtonsoft.json\\13.0.2-beta1\\newtonsoft.json.13.0.2-beta1.nupkg.sha512"
   ],
   "logs": []
 }

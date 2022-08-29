@@ -3,7 +3,22 @@
 # Coreflux C# API 
 This nuget package is resposible for all integration with C# and Coreflux. 
 
+# Coreflux Start / Stop Asset
+ ## Usage
 
+ - Add the necessary namespaces in your project
+	 `using Coreflux.API;`
+ - Get all installed assets @ our Coreflux Hub and if they are stopped Start them
+   '     Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
+                        var InstalledAssets = API.GetInstances();
+                        
+                        foreach(var inst in InstalledAssets)
+                        {
+                            if(inst.status== Coreflux.API.DataModels.InstanceStatus.Stopped)
+                            {
+                                API.StartInstance(inst.code);
+                            }
+                        }'
 # Coreflux MQTT Managed client 
 
 The MQTT namespace enables MQTT communication within your development.  There is already in place an MQTT Managed client.

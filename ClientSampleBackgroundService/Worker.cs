@@ -15,6 +15,8 @@ namespace ClientSampleBackgroundService
         private readonly ILogger<Worker> _logger;
         private MQTTControllerInstance MQTTControllerInstance;
         public bool isConnected;
+        public int Teste;
+        public Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
@@ -51,7 +53,7 @@ namespace ClientSampleBackgroundService
             {
                 //var t = MQTTController.GetDataAsync("teste").GetAwaiter();
                 _logger.LogInformation("Get inside MQTT_Controller");
-                var t = MQTTControllerInstance.GetDataAsync("HV/RobotComFilho").GetAwaiter();
+                
             }
             AlreadyConnectedOneTime = true;
             isConnected = true;
@@ -83,26 +85,51 @@ namespace ClientSampleBackgroundService
             }
             while (!stoppingToken.IsCancellationRequested)
             {
-                //    _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 if (isConnected)
                 {
+                    Teste++;
+                    if (Teste == 50)
+                    {
+                        Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
+                        var InstalledAssets = API.GetInstances();
+                        
+                        foreach(var inst in InstalledAssets)
+                        {
+                            if(inst.status== Coreflux.API.DataModels.InstanceStatus.Stopped)
+                            {
+                                API.StartInstance(inst.code);
+                            }
+                        }
 
-                    // await MQTTController.SetDataAsync("HV/RobotComFilho", "weeeee");
-                    //          _logger.LogInformation("isConnected subscribe");
+
+                        var testeJson = Newtonsoft.Json.JsonConvert.SerializeObject(API.GetInstances());
+                        _logger.LogInformation(testeJson);
+                      
+                        try { 
+                            API.StartInstance("9T11");
+                            _logger.LogInformation("Worked");
+                        }
+                        catch
+                        {
+                            _logger.LogInformation("Didn't work");
+                        }
+
+                    }
+                    if(Teste==100)
+                    {
+                        var tio = API.StopInstance("9T11");
+                        Teste = 0;
+
+                    }
                     var t = MQTTControllerInstance.GetDataAsync("HV/RobotComFilho");
-
                      var teste=t.GetAwaiter().GetResult();
                     //            _logger.LogInformation("subscribe finished");
                     
                     _logger.LogInformation("received " + teste + " @ {time} ", DateTimeOffset.Now);
                 }
-                //         _logger.LogInformation("Wait 1000ms");
                 Task.Delay(100).Wait();
-                //         _logger.LogInformation("Publish Data Async");
                 var t1 = MQTTControllerInstance.SetDataAsync("HV/Teste", "teste", qoslevel: 1);
-                //          _logger.LogInformation("Publish Confirm ");
                 t1.Wait(100);
-                //        _logger.LogInformation("Publish Done check results ");
                 var result = t1.GetAwaiter().GetResult();
                 if (result != null)
                 {
@@ -120,19 +147,7 @@ namespace ClientSampleBackgroundService
                     _logger.LogInformation("Failed  to publish HV/Teste by null @ {time} ", DateTimeOffset.Now);
                 }
                 //          _logger.LogInformation("Publish Results decision");
-
-                //else
-                //{
-                //    try
-                //    {
-                //        await MQTTControllerInstance.StartAsync("127.0.0.1");
-                //    }
-                //    catch
-                //    {
-                //        _logger.LogInformation("Failed to find the  broker {time}", DateTimeOffset.Now);
-                //    }
-                //}
-
+               
             }
         }
     }
