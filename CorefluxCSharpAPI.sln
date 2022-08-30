@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CorefluxCSharpAPI", "CorefluxCSharpAPI.csproj", "{166CEC83-23EC-4E4E-BEDA-89C0CE34A877}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CorefluxCSharpAPI", "CorefluxCSharpAPI\CorefluxCSharpAPI.csproj", "{166CEC83-23EC-4E4E-BEDA-89C0CE34A877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientSampleBackgroundService", "..\ClientSampleBackgroundService\ClientSampleBackgroundService.csproj", "{915CD5CC-EC68-4835-AACE-A2B26936B78C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientSampleBackgroundService", "ClientSampleBackgroundService\ClientSampleBackgroundService.csproj", "{915CD5CC-EC68-4835-AACE-A2B26936B78C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
