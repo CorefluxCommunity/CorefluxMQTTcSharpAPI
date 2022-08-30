@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Docs\Setlevel\Produtos\CorefluxCommunity\APIs\C#\corefluxmqttcsharpapi\CorefluxCSharpAPI\CorefluxMQTTcSharpAPI.xml</DocumentationFile>
+    <DocumentationFile>CorefluxCSharpAPI\CorefluxMQTTcSharpAPI.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
