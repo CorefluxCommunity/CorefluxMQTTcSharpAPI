@@ -67,31 +67,29 @@ namespace ClientSampleBackgroundService
             {
                 if (isConnected)
                 {
-                    //Get the last value of the topic received 
-                    var t = mqttInstance.GetDataAsync("CF/GetTest").GetAwaiter();
-                    _logger.LogInformation("Was able to subscribe CF/GetTest with {string} ", t.GetResult());
-                    Task.Delay(100).Wait();
-                    //Set the new value of topic CF/Test
-                    var t1 = mqttInstance.SetDataAsync("CF/Test", "test", qoslevel: 1);
-                    t1.Wait(100);
-                    var result = t1.GetAwaiter().GetResult();
-                    if (result != null)
-                    {
-                        if (result.ReasonFeedback == MQTTPublishFeedback.FeedbackType.PublishSucess)
-                        {
-                            _logger.LogInformation(string.Format("Message publish to CF/Test with success @ {0} ", DateTimeOffset.Now));
-                        }
-                        else
-                        {
-                            _logger.LogInformation(string.Format("Failed to publish message to CF/Test @ {0} ", DateTimeOffset.Now));
-                        }
-                    }
+                    // Send data.
+                    MQTTPublishFeedback data = await PublishData();
+
+                    // Verify Publishing Information.
+                    VerifyPublishingFeedBack(data);
                 }
                 else
                 {
-                    _logger.LogInformation(string.Format("Failed to publish message to CF/Test. Isn't connected. @ {0} ", DateTimeOffset.Now));
+                    _logger.LogInformation(string.Format("Failed to publish message to CF/Test. Not connected. @ {0} ", DateTimeOffset.Now));
                 }
             }
+        }
+        private async Task<MQTTPublishFeedback> PublishData()
+        {
+            try
+            {
+                return await mqttInstance.SetDataAsync("CF/Test", "test", qoslevel: 1);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(string.Format("Failed to publish. Time {0}. Exception {1}", DateTimeOffset.Now, ex.ToString()));
+            }
+            return null; // Returns null because something happend :)!
         }
 
         private async Task ConnectToBroker()
@@ -103,7 +101,25 @@ namespace ClientSampleBackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(string.Format("Failed to find the broker {0}. Exception {1}", DateTimeOffset.Now, ex.ToString()));
+                _logger.LogInformation(string.Format("Connection failed. Time {0}. Exception {1}", DateTimeOffset.Now, ex.ToString()));
+            }
+        }
+        private void VerifyPublishingFeedBack(MQTTPublishFeedback data)
+        {
+            if (data != null)
+            {
+                if (data.ReasonFeedback == MQTTPublishFeedback.FeedbackType.PublishSucess)
+                {
+                    _logger.LogInformation(string.Format("Message published to CF/Test with success @ {0} ", DateTimeOffset.Now));
+                }
+                else
+                {
+                    _logger.LogInformation(string.Format("Failed to publish message to CF/Test @ {0} ", DateTimeOffset.Now));
+                }
+            }
+            else
+            {
+                _logger.LogInformation(string.Format("Failed to publish message to CF/Test. @ {0} ", DateTimeOffset.Now));
             }
         }
     }
