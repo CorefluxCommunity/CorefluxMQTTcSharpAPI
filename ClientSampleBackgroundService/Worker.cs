@@ -1,11 +1,10 @@
+using Coreflux.API.Networking.MQTT;
+using CorefluxCSharpAPI.API.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Coreflux.API.Networking.MQTT;
 
 namespace ClientSampleBackgroundService
 {
@@ -16,7 +15,6 @@ namespace ClientSampleBackgroundService
         private MQTTControllerInstance MQTTControllerInstance;
         public bool isConnected;
         public int Teste;
-        public Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
@@ -28,6 +26,10 @@ namespace ClientSampleBackgroundService
             MQTTControllerInstance.PersistentConnection = true;
             AlreadyConnectedOneTime = false;
             isConnected = false;
+
+            Coreflux.API.Client API = new Coreflux.API.Client("localhost");
+            var InstalledAssets = API.StartInstance("y");
+
         }
 
 

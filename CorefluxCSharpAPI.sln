@@ -5,7 +5,11 @@ VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CorefluxCSharpAPI", "CorefluxCSharpAPI\CorefluxCSharpAPI.csproj", "{166CEC83-23EC-4E4E-BEDA-89C0CE34A877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientSampleBackgroundService", "ClientSampleBackgroundService\ClientSampleBackgroundService.csproj", "{915CD5CC-EC68-4835-AACE-A2B26936B78C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientSampleBackgroundService", "ClientSampleBackgroundService\ClientSampleBackgroundService.csproj", "{915CD5CC-EC68-4835-AACE-A2B26936B78C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{90FB36B0-A8D8-4BEC-95EB-A288C67CAE38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorefluxCSharpAPI.API.Tests", "CorefluxCSharpAPI.API.Tests\CorefluxCSharpAPI.API.Tests.csproj", "{50E01CB6-17C3-4B3D-A904-581DB21BA731}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +25,16 @@ Global
 		{915CD5CC-EC68-4835-AACE-A2B26936B78C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{915CD5CC-EC68-4835-AACE-A2B26936B78C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{915CD5CC-EC68-4835-AACE-A2B26936B78C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50E01CB6-17C3-4B3D-A904-581DB21BA731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50E01CB6-17C3-4B3D-A904-581DB21BA731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50E01CB6-17C3-4B3D-A904-581DB21BA731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50E01CB6-17C3-4B3D-A904-581DB21BA731}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{50E01CB6-17C3-4B3D-A904-581DB21BA731} = {90FB36B0-A8D8-4BEC-95EB-A288C67CAE38}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {071CE497-7C34-453C-8DF6-50645B3989D0}
