@@ -11,10 +11,26 @@ namespace Coreflux.API
         private readonly string _ip;
         private readonly ICommunicationService _communicationService;
 
+        /// <summary>
+        /// This constructor is recommend for unit testing.
+        /// This constructor let's you pass a mock object of ICommunicationService.
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="communicationService"></param>
         public Client(string ip, ICommunicationService communicationService = null)
         {
             _ip = ip;
             _communicationService = communicationService ?? new CommunicationService();
+        }
+
+        /// <summary>
+        /// This constructor is the recommend for production application's
+        /// </summary>
+        /// <param name="ip"></param>
+        public Client(string ip)
+        {
+            _ip = ip;
+            _communicationService = new CommunicationService();
         }
 
         /// <summary>
@@ -27,7 +43,12 @@ namespace Coreflux.API
             return string.IsNullOrEmpty(response) ? null : JsonConvert.DeserializeObject<AppInstance[]>(response);
         }
 
-
+        /// <summary>
+        /// This method start's the execution of a Instance
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public bool StartInstance(string id)
         {
             if (FindAppInInstances(id))
@@ -39,6 +60,12 @@ namespace Coreflux.API
             return false;
         }
 
+        /// <summary>
+        /// This method stop's the execution of a Instance
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public bool StopInstance(string id)
         {
             if (FindAppInInstances(id))
