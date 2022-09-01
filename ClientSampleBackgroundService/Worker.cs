@@ -15,6 +15,7 @@ namespace ClientSampleBackgroundService
         private MQTTControllerInstance MQTTControllerInstance;
         public bool isConnected;
         public int Teste;
+        public Coreflux.API.Client API = new Coreflux.API.Client("localhost");
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;
@@ -26,10 +27,6 @@ namespace ClientSampleBackgroundService
             MQTTControllerInstance.PersistentConnection = true;
             AlreadyConnectedOneTime = false;
             isConnected = false;
-
-            Coreflux.API.Client API = new Coreflux.API.Client("localhost");
-            var InstalledAssets = API.StartInstance("y");
-
         }
 
 
