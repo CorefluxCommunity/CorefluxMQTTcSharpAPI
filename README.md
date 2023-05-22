@@ -10,7 +10,7 @@ This nuget package is resposible for all integration with C# and Coreflux.
 	 `using Coreflux.API;`
  - Get all installed assets @ our Coreflux Hub and if they are stopped Start them
        
-   			Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
+   			Coreflux.API.Client API = new Coreflux.API.Client("localhost");
                         var InstalledAssets = API.GetInstances();
                         
                         foreach(var inst in InstalledAssets)
@@ -23,7 +23,7 @@ This nuget package is resposible for all integration with C# and Coreflux.
 			
  - Get all installed assets @ our Coreflux Hub and if they are started / stop them       
    			
-			Coreflux.API.Client API = new Coreflux.API.Client("localhost", Coreflux.API.Client.Version.LegacyHTTPS);
+			Coreflux.API.Client API = new Coreflux.API.Client("localhost");
                         var InstalledAssets = API.GetInstances();
                         
                         foreach(var inst in InstalledAssets)
