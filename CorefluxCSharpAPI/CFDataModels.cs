@@ -9,61 +9,7 @@ using System.Runtime.Serialization;
 namespace Coreflux.API.DataModels
 {
 
-    #region JsonConverter for ParameterType
-
-    //public class ParameterTypeConverter : JsonConverter
-    //{
-    //    public override bool CanConvert(Type objectType)
-    //    {
-    //        return typeof(ParameterType).IsAssignableFrom(objectType);
-    //    }
-
-    //    public override object ReadJson(JsonReader reader,
-    //        Type objectType, object existingValue, JsonSerializer serializer)
-    //    {
-    //        JObject jo = JObject.Load(reader);
-    //        //var JTokenValue = jo.GetValue("Value");
-    //        var JTokenValue = jo.ToString();
-
-    //        bool? isParameterType = (bool?)jo["type"];
-
-    //        ParameterType item = new ParameterType();
-
-    //        if (JTokenValue.Equals("{\r\n  \"Value\": \"String\"\r\n}"))
-    //        {
-    //            item = new ParameterType("String");
-    //        }
-    //        else if (JTokenValue.Equals("{\r\n  \"Value\": \"Bool\"\r\n}"))
-    //        {
-    //            item = new ParameterType("Bool");
-    //        }
-    //        else if (JTokenValue.Equals("{\r\n  \"Value\": \"Int\"\r\n}"))
-    //        {
-    //            item = new ParameterType("Int");
-    //        }
-    //        else if (JTokenValue.Equals("{\r\n  \"Value\": \"Float\"\r\n}"))
-    //        {
-    //            item = new ParameterType("Float");
-    //        }
-
-    //        serializer.Populate(jo.CreateReader(), item);
-
-    //        return item;
-    //    }
-
-    //    public override bool CanWrite
-    //    {
-    //        get { return false; }
-    //    }
-
-    //    public override void WriteJson(JsonWriter writer,
-    //        object value, JsonSerializer serializer)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
-
-    #endregion
+ 
 
 
     public class User
@@ -79,7 +25,7 @@ namespace Coreflux.API.DataModels
         public string name { get; set; } = "";
     }
 
-    [DataContract]
+
     public class LoginData
     {
 
@@ -225,32 +171,7 @@ namespace Coreflux.API.DataModels
         }
     }
 
-    //public class AppStore : App
-    //{
-    //    [DataMember]
-    //    public bool dataAvaible { get; set; }
-    //    [DataMember]
-    //    public string storeID { get; set; } = "";
-    //    [DataMember]
-    //    public int accountMaxQty { get; set; }
-    //    [DataMember]
-    //    public float discount { get; set; }
-    //    [DataMember]
-    //    public float price { get; set; }
-
-    //    [DataMember]
-    //    public string itemRef { get; set; } = null;
-
-    //    [DataMember]
-    //    public float taxValue { get; set; }
-
-    //    public StoreElemGUI myGameObject;
-
-    //    public float GetPrice()
-    //    {
-    //        return this.price * (1 + this.taxValue);
-    //    }
-    //}
+   
 
 
     public class Parameter

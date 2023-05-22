@@ -1,13 +1,20 @@
 {
   "version": 2,
-  "dgSpecHash": "Yix39dXQEwX74neJDX7UhYHzPCKZHjHDyXkVB5IawXKQMqiZj9g6Jn6OZx2E8p03tXYV1Zw976xT+O9J8NQpUQ==",
+  "dgSpecHash": "00fyieBpNEm6Fo0vaqhbpebOf3eQpw4VtsBske0ExndWND2EhnqOkVMTTX+lBGfGPAZb3dx2+qU/l/ar2NbByg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\carlo\\Desktop\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
+  "projectFilePath": "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\carlo\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
-    "C:\\Users\\carlo\\.nuget\\packages\\mqttnet\\3.0.16\\mqttnet.3.0.16.nupkg.sha512",
-    "C:\\Users\\carlo\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
-    "C:\\Users\\carlo\\.nuget\\packages\\newtonsoft.json\\13.0.2-beta1\\newtonsoft.json.13.0.2-beta1.nupkg.sha512"
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\mqttnet\\3.0.16\\mqttnet.3.0.16.nupkg.sha512",
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "C:\\Users\\hugo.vaz\\.nuget\\packages\\newtonsoft.json\\13.0.2-beta1\\newtonsoft.json.13.0.2-beta1.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1803",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "You are running the 'restore' operation with an 'HTTP' source, 'http://192.168.100.32:5555/v3/index.json'. Non-HTTPS access will be removed in a future version. Consider migrating to an 'HTTPS' source."
+    }
+  ]
 }

@@ -3,6 +3,6 @@
     public enum CommunicationVersion
     {
         LegacyHTTPS,
-        MQTTJWT
+        MQTT
     }
 }

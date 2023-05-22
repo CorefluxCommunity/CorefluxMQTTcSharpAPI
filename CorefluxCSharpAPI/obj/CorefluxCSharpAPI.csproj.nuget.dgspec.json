@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\carlo\\Desktop\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj": {}
+    "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\carlo\\Desktop\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj": {
+    "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj": {
       "version": "1.3.2",
       "restore": {
-        "projectUniqueName": "C:\\Users\\carlo\\Desktop\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
+        "projectUniqueName": "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
         "projectName": "CorefluxMQTTcSharpAPI",
-        "projectPath": "C:\\Users\\carlo\\Desktop\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
-        "packagesPath": "C:\\Users\\carlo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\carlo\\Desktop\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\obj\\",
+        "projectPath": "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\CorefluxCSharpAPI.csproj",
+        "packagesPath": "C:\\Users\\hugo.vaz\\.nuget\\packages\\",
+        "outputPath": "D:\\Docs\\2-Products\\CorefluxMQTTcSharpAPI\\CorefluxCSharpAPI\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\carlo\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\hugo.vaz\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,6 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "http://192.168.100.32:5555/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -65,11 +62,12 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.203\\RuntimeIdentifierGraph.json"
         }
       }
     }
